@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from . import models
+
+admin.site.register(models.Visitor)
+admin.site.register(models.Session)
+admin.site.register(models.ReadingStatistic)
+admin.site.register(models.Book)

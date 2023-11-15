@@ -53,7 +53,7 @@ class Visitor(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=128)
     name = models.CharField(max_length=32)
     surname = models.CharField(max_length=32)
-    total_reading_time = models.TimeField(blank=True)
+    total_reading_time = models.TimeField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -70,3 +70,9 @@ class Session(models.Model):
     session_start = models.DateTimeField(auto_now_add=True)
     session_end = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
+
+
+class ReadingStatistic(models.Model):
+    book = models.OneToOneField(to=Book, related_name='statistics', null=True, on_delete=models.SET_NULL)
+    visitor = models.ForeignKey(to=Visitor, related_name='statistics', on_delete=models.CASCADE)
+    total_reading_time = models.TimeField(blank=True)

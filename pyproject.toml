@@ -16,6 +16,9 @@ django-celery-beat = "^2.5.0"
 python-dotenv = "^1.0.0"
 djangorestframework-simplejwt = "^5.3.0"
 uuid = "^1.30"
+auto-dataclass = "^0.1.6"
+django-annoying = "^0.10.6"
+dependency-injector = "^4.41.0"
 
 
 [build-system]

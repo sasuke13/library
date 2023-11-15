@@ -15,7 +15,7 @@ COPY ./pyproject.toml ./
 RUN python -m pip install --upgrade pip && \
     pip install poetry
 
-RUN poetry config1 virtualenvs.create false
+RUN poetry config virtualenvs.create false
 
 RUN poetry install --no-root
 
@@ -24,4 +24,4 @@ COPY ./commands ./commands
 
 RUN chmod +x commands/*.sh
 
-CMD ["bash", "commands/start_dev_server.sh"]
+CMD ["bash", "commands/start_server.sh"]

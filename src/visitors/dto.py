@@ -15,7 +15,6 @@ class VisitorRegistrationDTO:
 @dataclass(frozen=True)
 class VisitorDTO:
     email: str
-    password: str
     name: str
     surname: str
     total_reading_time: datetime.time
@@ -28,3 +27,10 @@ class SessionDTO:
     session_start: datetime
     session_end: datetime
     is_active: bool
+
+
+@dataclass(frozen=True)
+class ReadingStatisticDTO:
+    book: BookDTO
+    visitor: VisitorDTO
+    total_reading_time: datetime.time
