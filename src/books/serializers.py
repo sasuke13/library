@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-class BookDetailedView(serializers.Serializer):
+class BookDetailedViewDTOSerializer(serializers.Serializer):
     title = serializers.CharField(max_length=32)
     author = serializers.CharField(max_length=50)
     year_of_publication = serializers.IntegerField()

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
-from books.serializers import BookDetailedView
+from books.serializers import BookDetailedViewDTOSerializer
 
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
@@ -31,6 +31,14 @@ class VisitorDTOSerializer(serializers.Serializer):
 
 
 class ReadingStatisticDTOSerializer(serializers.Serializer):
-    book = BookDetailedView()
+    book = BookDetailedViewDTOSerializer()
     visitor = VisitorDTOSerializer()
     total_reading_time = serializers.TimeField()
+
+
+class SessionDTOSerializer(serializers.Serializer):
+    book = BookDetailedViewDTOSerializer()
+    visitor = VisitorDTOSerializer()
+    session_start = serializers.DateTimeField()
+    session_end = serializers.DateTimeField()
+    is_active = serializers.BooleanField()

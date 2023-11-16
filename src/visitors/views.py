@@ -7,12 +7,13 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
+from books.exceptions import BookDoesNotExist
 from core.base_api import ApiBaseView
-from core.containers import VisitorContainer
+from core.containers import VisitorContainer, SessionContainer
 from visitors.dto import VisitorRegistrationDTO
-from visitors.exceptions import PasswordIsInvalid
+from visitors.exceptions import PasswordIsInvalid, SessionDoesNotExist
 from visitors.serializers import CookieTokenRefreshSerializer, ReadingStatisticDTOSerializer, VisitorDTOSerializer, \
-    VisitorRegistrationDTOSerializer
+    VisitorRegistrationDTOSerializer, SessionDTOSerializer
 
 
 def logout(request, message: str):
@@ -68,15 +69,8 @@ class CookieTokenRefreshView(TokenRefreshView):
     serializer_class = CookieTokenRefreshSerializer
 
 
-class VisitorApiView(APIView, ApiBaseView):
+class VisitorRegistrationApiView(APIView, ApiBaseView):
     visitor_interactor = VisitorContainer.interactor()
-
-    def get(self, request):
-        statistics = self.visitor_interactor.get_users_statistic_dto(request.user)
-
-        serialized_statistics = ReadingStatisticDTOSerializer(statistics, many=True)
-
-        return Response({'statistic': serialized_statistics.data}, status=status.HTTP_201_CREATED)
 
     def post(self, request):
         visitor_serializer = VisitorRegistrationDTOSerializer(data=request.data)
@@ -96,3 +90,59 @@ class VisitorApiView(APIView, ApiBaseView):
         serialized_created_visitor = VisitorDTOSerializer(created_visitor)
 
         return Response({'created_user': serialized_created_visitor.data}, status=status.HTTP_201_CREATED)
+
+
+class SessionAPIView(APIView, ApiBaseView):
+    permission_classes = [IsAuthenticated]
+
+    session_interactor = SessionContainer.interactor()
+
+    def get(self, request):
+        try:
+            session = self.session_interactor.get_active_session_by_visitor(request.user)
+        except SessionDoesNotExist as exception:
+            return self._create_response_for_exception(exception)
+
+        serialized_session = SessionDTOSerializer(session)
+
+        return Response({'session': serialized_session.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, book_id: int):
+        try:
+            session = self.session_interactor.open_session(self.request.user, book_id)
+        except BookDoesNotExist as exception:
+            return self._create_response_for_exception(exception)
+
+        serialized_session = SessionDTOSerializer(session)
+
+        return Response({
+            'message': 'Session has been successfully opened!',
+            'session': serialized_session.data
+        }, status=status.HTTP_201_CREATED)
+
+
+class CloseSessionAPIView(APIView, ApiBaseView):
+    permission_classes = [IsAuthenticated]
+
+    session_interactor = SessionContainer.interactor()
+
+    def post(self, request):
+        try:
+            message = self.session_interactor.close_session(request.user)
+        except SessionDoesNotExist as exception:
+            return self._create_response_for_exception(exception)
+
+        return Response({'message': message}, status=status.HTTP_200_OK)
+
+
+class StatisticsAPIView(APIView, ApiBaseView):
+    permission_classes = [IsAuthenticated]
+
+    visitor_interactor = VisitorContainer.interactor()
+
+    def get(self, request):
+        statistics = self.visitor_interactor.get_users_statistic_dto(request.user)
+
+        serialized_statistics = ReadingStatisticDTOSerializer(statistics, many=True)
+
+        return Response({'statistic': serialized_statistics.data}, status=status.HTTP_201_CREATED)
