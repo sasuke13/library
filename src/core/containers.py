@@ -81,6 +81,7 @@ class InteractorContainer(containers.DeclarativeContainer):
 
     session_interactor = providers.Factory(
         SessionInteractor,
+        visitor_service=ServiceContainer.visitor_service,
         session_service=ServiceContainer.session_service,
         book_service=ServiceContainer.book_service,
         reading_statistic_service=ServiceContainer.reading_statistic_service,

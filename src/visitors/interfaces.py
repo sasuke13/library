@@ -19,11 +19,7 @@ class VisitorRepositoryAndServiceInterface(ABC):
         pass
 
     @abstractmethod
-    def get_users_statistic_dto(self, visitor: Visitor) -> Iterable[ReadingStatisticDTO]:
-        pass
-
-    @abstractmethod
-    def open_session(self, visitor: Visitor, book: Book) -> SessionDTO:
+    def add_total_reading_time_by_session(self, session: Session):
         pass
 
 

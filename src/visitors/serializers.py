@@ -27,7 +27,7 @@ class VisitorDTOSerializer(serializers.Serializer):
     email = serializers.EmailField()
     name = serializers.CharField(max_length=32)
     surname = serializers.CharField(max_length=32)
-    total_reading_time = serializers.TimeField()
+    total_reading_time = serializers.DurationField()
 
 
 class ReadingStatisticDTOSerializer(serializers.Serializer):

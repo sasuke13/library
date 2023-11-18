@@ -20,11 +20,8 @@ class VisitorServiceAndService(VisitorRepositoryAndServiceInterface):
     def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
         return self.visitor_repository.registration(visitor_registration_dto)
 
-    def get_users_statistic_dto(self, visitor: Visitor) -> Iterable[ReadingStatisticDTO]:
-        return self.visitor_repository.get_users_statistic_dto(visitor)
-
-    def open_session(self, visitor: Visitor, book: Book) -> SessionDTO:
-        return self.visitor_repository.open_session(visitor, book)
+    def add_total_reading_time_by_session(self, session: Session):
+        self.visitor_repository.add_total_reading_time_by_session(session)
 
 
 class SessionService(SessionRepositoryAndServiceInterface):

@@ -38,16 +38,20 @@ class VisitorRepositoryAndService(VisitorRepositoryAndServiceInterface, Abstract
 
         return map(self.converter.to_dto, statistics, repeat(ReadingStatisticDTO))
 
-    def open_session(self, visitor: Visitor, book: Book) -> SessionDTO:
-        active_session = visitor.sessions.filter(is_active=True).all().first()
+    def add_total_reading_time_by_session(self, session: Session):
+        visitor = session.visitor
+        session_start = session.session_start
+        session_end = session.session_end
 
-        if active_session:
-            active_session.is_active = False
-            active_session.session_end = datetime.now()
+        total_reading_time = session_end - session_start
 
-        session = Session.objects.create(visitor=visitor, book=book)
+        if visitor.total_reading_time:
+            visitor.total_reading_time = visitor.total_reading_time + total_reading_time
 
-        return self.converter.to_dto(session, SessionDTO)
+        else:
+            visitor.total_reading_time = total_reading_time
+
+        visitor.save()
 
 
 class SessionRepository(SessionRepositoryAndServiceInterface, AbstractRepository):
@@ -76,10 +80,16 @@ class SessionRepository(SessionRepositoryAndServiceInterface, AbstractRepository
         return self.converter.to_dto(session, SessionDTO)
 
     def close_session(self, session: Session) -> str:
+        book = session.book
+
         session.is_active = False
         session.session_end = timezone.now()
 
         session.save()
+
+        book.last_used = datetime.now()
+
+        book.save()
 
         return 'Session has been successfully closed!'
 

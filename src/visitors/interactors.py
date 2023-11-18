@@ -27,23 +27,23 @@ class VisitorInteractor(VisitorInteractorInterface):
 
         return self.visitor_service.registration(visitor_registration_dto)
 
-    def get_users_statistic_dto(self, visitor: Visitor) -> Iterable[ReadingStatisticDTO]:
-        return self.visitor_service.get_users_statistic_dto(visitor)
+    def add_total_reading_time_by_session(self, session: Session):
+        self.visitor_service.add_total_reading_time_by_session(session)
 
     def open_session(self, visitor: Visitor, book_id: int) -> SessionDTO:
-        book = self.book_service.get_book_by_id(book_id)
-
-        return self.visitor_service.open_session(visitor, book)
+        pass
 
 
 class SessionInteractor(SessionInteractorInterface):
     def __init__(
             self,
+            visitor_service: VisitorRepositoryAndServiceInterface,
             session_service: SessionRepositoryAndServiceInterface,
             book_service: BookRepositoryAndServiceInterface,
             reading_statistic_service: ReadingStatisticRepositoryAndServiceInterface,
             converter_service: DTOConverterInterface
     ):
+        self.visitor_service = visitor_service
         self.session_service = session_service
         self.book_service = book_service
         self.reading_statistic_service = reading_statistic_service
@@ -75,15 +75,20 @@ class SessionInteractor(SessionInteractorInterface):
             active_session = self.session_service.get_active_session_by_visitor(visitor)
 
             self.session_service.close_session(active_session)
+            print('a')
+            self.visitor_service.add_total_reading_time_by_session(active_session)
 
         except SessionDoesNotExist:
-            return self.session_service.open_session(visitor, book)
+            ...
+        return self.session_service.open_session(visitor, book)
 
     def close_session(self, visitor: Visitor) -> str:
         active_session = self.session_service.get_active_session_by_visitor(visitor)
         statistic = self.reading_statistic_service.get_statistic_by_session(active_session)
 
         message = self.session_service.close_session(active_session)
+
+        self.visitor_service.add_total_reading_time_by_session(active_session)
 
         if statistic:
             self.reading_statistic_service.add_total_reading_time_to_existing_statistic(active_session, statistic)
