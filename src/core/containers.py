@@ -4,9 +4,10 @@ from dependency_injector import containers, providers
 from books.interactors import BookInteractor
 from books.repositories import BookRepository
 from books.services import BookService
-from visitors.interactors import VisitorInteractor, SessionInteractor
-from visitors.repositories import VisitorRepositoryAndService, SessionRepository
-from visitors.services import VisitorServiceAndService, SessionService
+from visitors.interactors import VisitorInteractor, SessionInteractor, ReadingStatisticInteractor
+from visitors.repositories import VisitorRepositoryAndService, SessionRepository, DTOConverterRepository, \
+    ReadingStatisticRepository
+from visitors.services import VisitorServiceAndService, SessionService, DTOConverterService, ReadingStatisticService
 
 
 class ToDTOContainer(containers.DeclarativeContainer):
@@ -29,6 +30,15 @@ class RepositoryContainer(containers.DeclarativeContainer):
         converter=ToDTOContainer.from_queryset_to_dto
     )
 
+    reading_statistic_repository = providers.Factory(
+        ReadingStatisticRepository
+    )
+
+    dto_converter_repository = providers.Factory(
+        DTOConverterRepository,
+        converter=ToDTOContainer.from_queryset_to_dto
+    )
+
 
 class ServiceContainer(containers.DeclarativeContainer):
     visitor_service = providers.Factory(
@@ -46,6 +56,16 @@ class ServiceContainer(containers.DeclarativeContainer):
         session_repository=RepositoryContainer.session_repository
     )
 
+    reading_statistic_service = providers.Factory(
+        ReadingStatisticService,
+        reading_statistic_repository=RepositoryContainer.reading_statistic_repository
+    )
+
+    dto_converter_service = providers.Factory(
+        DTOConverterService,
+        converter_repository=RepositoryContainer.dto_converter_repository
+    )
+
 
 class InteractorContainer(containers.DeclarativeContainer):
     visitor_interactor = providers.Factory(
@@ -59,10 +79,18 @@ class InteractorContainer(containers.DeclarativeContainer):
         book_service=ServiceContainer.book_service
     )
 
-    session_interface = providers.Factory(
+    session_interactor = providers.Factory(
         SessionInteractor,
         session_service=ServiceContainer.session_service,
-        book_service=ServiceContainer.book_service
+        book_service=ServiceContainer.book_service,
+        reading_statistic_service=ServiceContainer.reading_statistic_service,
+        converter_service=ServiceContainer.dto_converter_service
+    )
+
+    reading_statistic_interactor = providers.Factory(
+        ReadingStatisticInteractor,
+        reading_statistic_service=ServiceContainer.reading_statistic_service,
+        converter_service=ServiceContainer.dto_converter_service
     )
 
 
@@ -81,4 +109,10 @@ class BookContainer(containers.DeclarativeContainer):
 class SessionContainer(containers.DeclarativeContainer):
     repository = RepositoryContainer.session_repository
     service = ServiceContainer.session_service
-    interactor = InteractorContainer.session_interface
+    interactor = InteractorContainer.session_interactor
+
+
+class ReadingStatisticContainer(containers.DeclarativeContainer):
+    repository = RepositoryContainer.reading_statistic_repository
+    service = ServiceContainer.reading_statistic_service
+    interactor = InteractorContainer.reading_statistic_interactor

@@ -11,7 +11,7 @@ from books.exceptions import BookDoesNotExist
 from core.base_api import ApiBaseView
 from core.containers import VisitorContainer, SessionContainer
 from visitors.dto import VisitorRegistrationDTO
-from visitors.exceptions import PasswordIsInvalid, SessionDoesNotExist
+from visitors.exceptions import PasswordIsInvalid, SessionDoesNotExist, VisitorAlreadyExists, BookIsAlreadyTaken
 from visitors.serializers import CookieTokenRefreshSerializer, ReadingStatisticDTOSerializer, VisitorDTOSerializer, \
     VisitorRegistrationDTOSerializer, SessionDTOSerializer
 
@@ -84,8 +84,8 @@ class VisitorRegistrationApiView(APIView, ApiBaseView):
 
         try:
             created_visitor = self.visitor_interactor.registration(visitor_dto)
-        except PasswordIsInvalid:
-            self._create_response_for_exception(PasswordIsInvalid)
+        except (PasswordIsInvalid, VisitorAlreadyExists) as exception:
+            return self._create_response_for_exception(exception)
 
         serialized_created_visitor = VisitorDTOSerializer(created_visitor)
 
@@ -99,7 +99,7 @@ class SessionAPIView(APIView, ApiBaseView):
 
     def get(self, request):
         try:
-            session = self.session_interactor.get_active_session_by_visitor(request.user)
+            session = self.session_interactor.get_active_session_dto_by_visitor(request.user)
         except SessionDoesNotExist as exception:
             return self._create_response_for_exception(exception)
 
@@ -110,7 +110,8 @@ class SessionAPIView(APIView, ApiBaseView):
     def post(self, request, book_id: int):
         try:
             session = self.session_interactor.open_session(self.request.user, book_id)
-        except BookDoesNotExist as exception:
+
+        except (BookDoesNotExist, BookIsAlreadyTaken) as exception:
             return self._create_response_for_exception(exception)
 
         serialized_session = SessionDTOSerializer(session)
