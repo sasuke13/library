@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'celery',
     'uuid',
+    'debug_toolbar',
 
     # apps
     'books',
@@ -64,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -187,3 +189,12 @@ COOKIE_HTTPONLY = True
 COOKIE_SECURE = True
 COOKIE_SAME_SITE = "None"
 COOKIE_MAX_AGE = 3600 * 24 * 7
+
+
+def show_toolbar(request):
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+}

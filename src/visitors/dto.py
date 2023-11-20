@@ -1,5 +1,6 @@
 import datetime
 from dataclasses import dataclass
+from typing import Iterable
 
 from books.dto import BookDTO
 
@@ -34,3 +35,9 @@ class ReadingStatisticDTO:
     book: BookDTO
     visitor: VisitorDTO
     total_reading_time: datetime.time
+
+
+@dataclass(frozen=True)
+class SessionAndTotalReadingTimeDTO:
+    session: SessionDTO
+    statistic: ReadingStatisticDTO

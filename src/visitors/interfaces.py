@@ -15,7 +15,7 @@ class VisitorRepositoryAndServiceInterface(ABC):
         pass
 
     @abstractmethod
-    def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
+    def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> Visitor:
         pass
 
     @abstractmethod
@@ -23,13 +23,17 @@ class VisitorRepositoryAndServiceInterface(ABC):
         pass
 
 
-class VisitorInteractorInterface(VisitorRepositoryAndServiceInterface):
+class VisitorInteractorInterface(ABC):
     @abstractmethod
-    def open_session(self, visitor: Visitor, book_id: int) -> SessionDTO:
+    def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
         pass
 
 
 class SessionRepositoryAndServiceInterface(ABC):
+    @abstractmethod
+    def get_all_sessions(self) -> Session:
+        pass
+
     @abstractmethod
     def get_active_session_by_visitor(self, visitor: Visitor) -> Session:
         pass
@@ -39,11 +43,11 @@ class SessionRepositoryAndServiceInterface(ABC):
         pass
 
     @abstractmethod
-    def get_all_sessions_dto_by_visitor(self, visitor: Visitor) -> Iterable[SessionDTO]:
+    def get_all_sessions_by_visitor(self, visitor: Visitor) -> Session:
         pass
 
     @abstractmethod
-    def open_session(self, visitor: Visitor, book: Book) -> SessionDTO:
+    def open_session(self, visitor: Visitor, book: Book) -> Session:
         pass
 
     @abstractmethod
@@ -51,7 +55,7 @@ class SessionRepositoryAndServiceInterface(ABC):
         pass
 
 
-class SessionInteractorInterface(SessionRepositoryAndServiceInterface):
+class SessionInteractorInterface(ABC):
     @abstractmethod
     def open_session(self, visitor: Visitor, book_id: int) -> SessionDTO:
         pass
@@ -72,6 +76,10 @@ class ReadingStatisticRepositoryAndServiceInterface(ABC):
 
     @abstractmethod
     def get_all_statistics_by_visitor(self, visitor: Visitor) -> ReadingStatistic:
+        pass
+
+    @abstractmethod
+    def get_all_statistics_by_book(self, book: Book) -> ReadingStatistic:
         pass
 
     @abstractmethod
@@ -105,19 +113,11 @@ class ReadingStatisticInteractorInterface(ABC):
         pass
 
     @abstractmethod
+    def get_all_statistics_by_book(self, book_id: int) -> ReadingStatistic:
+        pass
+
+    @abstractmethod
     def get_statistic_dto_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatisticDTO:
-        pass
-
-    @abstractmethod
-    def get_all_statistics(self) -> ReadingStatistic:
-        pass
-
-    @abstractmethod
-    def get_all_statistics_by_visitor(self, visitor: Visitor) -> ReadingStatistic:
-        pass
-
-    @abstractmethod
-    def get_statistic_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatistic:
         pass
 
 

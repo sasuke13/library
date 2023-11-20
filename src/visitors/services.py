@@ -4,20 +4,20 @@ from typing import Iterable
 from django.db.models import Model
 
 from books.models import Book
-from visitors.dto import ReadingStatisticDTO, VisitorRegistrationDTO, VisitorDTO, SessionDTO
+from visitors.dto import VisitorRegistrationDTO
 from visitors.interfaces import VisitorRepositoryAndServiceInterface, SessionRepositoryAndServiceInterface, \
     DTOConverterInterface, ReadingStatisticRepositoryAndServiceInterface
 from visitors.models import Visitor, Session, ReadingStatistic
 
 
-class VisitorServiceAndService(VisitorRepositoryAndServiceInterface):
+class VisitorService(VisitorRepositoryAndServiceInterface):
     def __init__(self, visitor_repository: VisitorRepositoryAndServiceInterface):
         self.visitor_repository = visitor_repository
 
     def does_visitor_exist_by_email(self, email: str) -> bool:
         return self.visitor_repository.does_visitor_exist_by_email(email)
 
-    def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
+    def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> Visitor:
         return self.visitor_repository.registration(visitor_registration_dto)
 
     def add_total_reading_time_by_session(self, session: Session):
@@ -28,8 +28,11 @@ class SessionService(SessionRepositoryAndServiceInterface):
     def __init__(self, session_repository: SessionRepositoryAndServiceInterface):
         self.session_repository = session_repository
 
-    def get_all_sessions_dto_by_visitor(self, visitor: Visitor) -> Iterable[SessionDTO]:
-        return self.session_repository.get_all_sessions_dto_by_visitor(visitor)
+    def get_all_sessions(self) -> Session:
+        return self.session_repository.get_all_sessions()
+
+    def get_all_sessions_by_visitor(self, visitor: Visitor) -> Session:
+        return self.session_repository.get_all_sessions_by_visitor(visitor)
 
     def get_active_session_by_visitor(self, visitor: Visitor) -> Session:
         return self.session_repository.get_active_session_by_visitor(visitor)
@@ -37,7 +40,7 @@ class SessionService(SessionRepositoryAndServiceInterface):
     def get_active_session_by_book(self, book: Book) -> Session:
         return self.session_repository.get_active_session_by_book(book)
 
-    def open_session(self, visitor: Visitor, book: Book) -> SessionDTO:
+    def open_session(self, visitor: Visitor, book: Book) -> Session:
         return self.session_repository.open_session(visitor, book)
 
     def close_session(self, session: Session) -> str:
@@ -71,6 +74,9 @@ class ReadingStatisticService(ReadingStatisticRepositoryAndServiceInterface):
 
     def get_all_statistics_by_visitor(self, visitor: Visitor) -> ReadingStatistic:
         return self.reading_statistic_repository.get_all_statistics_by_visitor(visitor)
+
+    def get_all_statistics_by_book(self, book: Book) -> ReadingStatistic:
+        return self.reading_statistic_repository.get_all_statistics_by_book(book)
 
     def get_statistic_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatistic:
         return self.reading_statistic_repository.get_statistic_by_visitor_and_book(visitor, book)

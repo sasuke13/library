@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
 from books.exceptions import BookDoesNotExist
 from core.base_api import ApiBaseView
-from core.containers import VisitorContainer, SessionContainer
+from core.containers import VisitorContainer, SessionContainer, ReadingStatisticContainer
 from visitors.dto import VisitorRegistrationDTO
 from visitors.exceptions import PasswordIsInvalid, SessionDoesNotExist, VisitorAlreadyExists, BookIsAlreadyTaken
 from visitors.serializers import CookieTokenRefreshSerializer, ReadingStatisticDTOSerializer, VisitorDTOSerializer, \
@@ -136,14 +136,33 @@ class CloseSessionAPIView(APIView, ApiBaseView):
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class StatisticsAPIView(APIView, ApiBaseView):
+class VisitorStatisticAPIView(APIView, ApiBaseView):
     permission_classes = [IsAuthenticated]
 
-    visitor_interactor = VisitorContainer.interactor()
+    reading_statistic_interactor = ReadingStatisticContainer.interactor()
 
     def get(self, request):
-        statistics = self.visitor_interactor.get_users_statistic_dto(request.user)
+        statistics = self.reading_statistic_interactor.get_all_statistics_dto_by_visitor(request.user)
 
         serialized_statistics = ReadingStatisticDTOSerializer(statistics, many=True)
 
         return Response({'statistic': serialized_statistics.data}, status=status.HTTP_201_CREATED)
+
+
+class StatisticsAPIView(APIView, ApiBaseView):
+    reading_statistic_interactor = ReadingStatisticContainer.interactor()
+
+    def get(self, request, book_id: int = None):
+        if book_id:
+            try:
+                statistic = self.reading_statistic_interactor.get_all_statistics_by_book(book_id)
+            except BookDoesNotExist as exception:
+                return self._create_response_for_exception(exception)
+            serialized_statistic = ReadingStatisticDTOSerializer(statistic, many=True)
+
+        else:
+            statistic = self.reading_statistic_interactor.get_all_statistics_dto()
+
+            serialized_statistic = ReadingStatisticDTOSerializer(statistic, many=True)
+
+        return Response({'statistic': serialized_statistic.data}, status=status.HTTP_201_CREATED)

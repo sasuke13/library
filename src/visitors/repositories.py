@@ -3,40 +3,33 @@ from datetime import datetime
 from itertools import repeat
 from typing import Iterable
 
+from auto_dataclass.dj_model_to_dataclass import ToDTOConverter
 from django.db.models.sql import Query
 from django.utils import timezone
 from annoying.functions import get_object_or_None
 
 from books.models import Book
-from core.abstract_classes import AbstractRepository
-from visitors.dto import ReadingStatisticDTO, VisitorRegistrationDTO, VisitorDTO, SessionDTO
+from visitors.dto import VisitorRegistrationDTO
 from visitors.exceptions import VisitorAlreadyExists, SessionDoesNotExist
 from visitors.interfaces import VisitorRepositoryAndServiceInterface, SessionRepositoryAndServiceInterface, \
     DTOConverterInterface, ReadingStatisticRepositoryAndServiceInterface
 from visitors.models import Visitor, ReadingStatistic, Session
 
 
-class VisitorRepositoryAndService(VisitorRepositoryAndServiceInterface, AbstractRepository):
+class VisitorRepository(VisitorRepositoryAndServiceInterface):
     def does_visitor_exist_by_email(self, email: str) -> bool:
-        visitor = get_object_or_None(Visitor, email=email)
+        visitor = get_object_or_None(Visitor.objects.
+                                     prefetch_related('statistics', 'sessions'), email=email)
 
         if visitor:
             raise VisitorAlreadyExists(f'Visitor with email {email} already exists!')
 
         return False
 
-    def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
+    def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> Visitor:
         registered_visitor = Visitor.objects.create_user(**visitor_registration_dto.__dict__)
 
-        return self.converter.to_dto(registered_visitor, VisitorDTO)
-
-    def get_users_statistic_dto(self, visitor: Visitor) -> Iterable[ReadingStatisticDTO]:
-        statistics = ReadingStatistic.objects.select_related(
-            'visitor',
-            'book'
-        ).filter(visitor=visitor)
-
-        return map(self.converter.to_dto, statistics, repeat(ReadingStatisticDTO))
+        return registered_visitor
 
     def add_total_reading_time_by_session(self, session: Session):
         visitor = session.visitor
@@ -54,15 +47,21 @@ class VisitorRepositoryAndService(VisitorRepositoryAndServiceInterface, Abstract
         visitor.save()
 
 
-class SessionRepository(SessionRepositoryAndServiceInterface, AbstractRepository):
+class SessionRepository(SessionRepositoryAndServiceInterface):
+    def get_all_sessions(self) -> Session:
+        sessions = (Session.objects.all().order_by('visitor', 'book').
+                    prefetch_related('visitor', 'book').select_related('visitor', 'book'))
 
-    def get_all_sessions_dto_by_visitor(self, visitor: Visitor) -> Iterable[SessionDTO]:
-        active_session = visitor.sessions.all()
+        return sessions
 
-        return map(self.converter.to_dto, active_session, repeat(SessionDTO))
+    def get_all_sessions_by_visitor(self, visitor: Visitor) -> Session:
+        sessions = visitor.sessions.prefetch_related('visitor', 'book').select_related('visitor', 'book')
+
+        return sessions
 
     def get_active_session_by_visitor(self, visitor: Visitor) -> Session:
-        active_session = visitor.sessions.filter(is_active=True).all().first()
+        active_session = (visitor.sessions.filter(is_active=True).all().first().
+                          prefetch_related('visitor', 'book').select_related('visitor', 'book'))
 
         if not active_session:
             raise SessionDoesNotExist()
@@ -70,14 +69,15 @@ class SessionRepository(SessionRepositoryAndServiceInterface, AbstractRepository
         return active_session
 
     def get_active_session_by_book(self, book: Book) -> Session:
-        active_session = book.sessions.filter(is_active=True).all().first()
+        active_session = (book.sessions.filter(is_active=True).all().first().
+                          prefetch_related('visitor', 'book').select_related('visitor', 'book'))
 
         return active_session
 
-    def open_session(self, visitor: Visitor, book: Book) -> SessionDTO:
+    def open_session(self, visitor: Visitor, book: Book) -> Session:
         session = Session.objects.create(visitor=visitor, book=book)
 
-        return self.converter.to_dto(session, SessionDTO)
+        return session
 
     def close_session(self, session: Session) -> str:
         book = session.book
@@ -94,7 +94,9 @@ class SessionRepository(SessionRepositoryAndServiceInterface, AbstractRepository
         return 'Session has been successfully closed!'
 
 
-class DTOConverterRepository(DTOConverterInterface, AbstractRepository):
+class DTOConverterRepository(DTOConverterInterface):
+    def __init__(self, converter: ToDTOConverter):
+        self.converter = converter
 
     def convert_to_dto(self, dto_class: dataclass, query: Query) -> dataclass:
         return self.converter.to_dto(query, dto_class)
@@ -137,17 +139,30 @@ class ReadingStatisticRepository(ReadingStatisticRepositoryAndServiceInterface):
         return statistic
 
     def get_all_statistics(self) -> ReadingStatistic:
-        return ReadingStatistic.objects.all()
+        return (ReadingStatistic.objects.all().order_by('visitor', 'book').
+                prefetch_related('book', 'visitor').
+                select_related('book', 'visitor'))
 
     def get_all_statistics_by_visitor(self, visitor: Visitor) -> ReadingStatistic:
-        return visitor.statistics.all()
+        return (visitor.statistics.all().
+                prefetch_related('book', 'visitor').
+                select_related('book', 'visitor'))
+
+    def get_all_statistics_by_book(self, book: Book) -> ReadingStatistic:
+        return (book.statistics.all().
+                prefetch_related('book', 'visitor').
+                select_related('book', 'visitor'))
 
     def get_statistic_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatistic:
-        statistic = visitor.statistics.filter(book=book).first()
+        statistic = (visitor.statistics.filter(book=book).first().
+                     prefetch_related('book', 'visitor').
+                     select_related('book', 'visitor'))
 
         return statistic
 
     def get_statistic_by_session(self, session: Session) -> ReadingStatistic:
-        statistic = session.visitor.statistics.filter(book=session.book).first()
+        statistic = (session.visitor.statistics.filter(book=session.book).first().
+                     prefetch_related('book', 'visitor').
+                     select_related('book', 'visitor'))
 
         return statistic

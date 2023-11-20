@@ -4,10 +4,11 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from books.models import Book
+# from books.models import Book
 
 import uuid
 
+# from core.book_Imports import Book_model
 from visitors.exceptions import PasswordIsInvalid
 
 
@@ -65,7 +66,7 @@ class Visitor(AbstractBaseUser, PermissionsMixin):
 
 
 class Session(models.Model):
-    book = models.ForeignKey(to=Book, related_name='sessions', null=True, on_delete=models.SET_NULL)
+    book = models.ForeignKey(to='books.Book', related_name='sessions', null=True, on_delete=models.SET_NULL)
     visitor = models.ForeignKey(to=Visitor, related_name='sessions', on_delete=models.CASCADE)
     session_start = models.DateTimeField(auto_now_add=True)
     session_end = models.DateTimeField(null=True)
@@ -73,6 +74,6 @@ class Session(models.Model):
 
 
 class ReadingStatistic(models.Model):
-    book = models.OneToOneField(to=Book, related_name='statistics', null=True, on_delete=models.SET_NULL)
+    book = models.ForeignKey(to='books.Book', related_name='statistics', null=True, on_delete=models.SET_NULL)
     visitor = models.ForeignKey(to=Visitor, related_name='statistics', on_delete=models.CASCADE)
     total_reading_time = models.DurationField()

@@ -1,8 +1,9 @@
 from django.contrib import admin
 
-from visitors import models
+from visitors.models import Visitor, ReadingStatistic, Session
+from books.models import Book
 
-admin.site.register(models.Visitor)
-admin.site.register(models.Session)
-admin.site.register(models.ReadingStatistic)
-admin.site.register(models.Book)
+admin.site.register(Visitor)
+admin.site.register(Session)
+admin.site.register(ReadingStatistic)
+admin.site.register(Book)
