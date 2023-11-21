@@ -35,7 +35,7 @@ def logout(request, message: str):
     return Response("Refresh token not found", status=status.HTTP_400_BAD_REQUEST)
 
 
-class LogoutView(APIView):
+class LogoutView(APIView, ApiBaseView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -43,7 +43,7 @@ class LogoutView(APIView):
         try:
             return logout(request, message)
         except TokenError as exception:
-            return Response({"error": exception.args}, status=status.HTTP_400_BAD_REQUEST)
+            return self._create_response_for_exception(exception)
 
 
 class CookieTokenObtainPairView(TokenObtainPairView):
@@ -136,19 +136,6 @@ class CloseSessionAPIView(APIView, ApiBaseView):
         return Response({'message': message}, status=status.HTTP_200_OK)
 
 
-class VisitorStatisticAPIView(APIView, ApiBaseView):
-    permission_classes = [IsAuthenticated]
-
-    reading_statistic_interactor = ReadingStatisticContainer.interactor()
-
-    def get(self, request):
-        statistics = self.reading_statistic_interactor.get_all_statistics_dto_by_visitor(request.user)
-
-        serialized_statistics = ReadingStatisticDTOSerializer(statistics, many=True)
-
-        return Response({'statistic': serialized_statistics.data}, status=status.HTTP_201_CREATED)
-
-
 class StatisticsAPIView(APIView, ApiBaseView):
     reading_statistic_interactor = ReadingStatisticContainer.interactor()
 
@@ -165,4 +152,29 @@ class StatisticsAPIView(APIView, ApiBaseView):
 
             serialized_statistic = ReadingStatisticDTOSerializer(statistic, many=True)
 
-        return Response({'statistic': serialized_statistic.data}, status=status.HTTP_201_CREATED)
+        return Response({'statistic': serialized_statistic.data}, status=status.HTTP_200_OK)
+
+
+class VisitorStatisticsAPIView(APIView, ApiBaseView):
+    permission_classes = [IsAuthenticated]
+
+    reading_statistic_interactor = ReadingStatisticContainer.interactor()
+
+    def get(self, request, book_id: int = None):
+        if book_id:
+            try:
+                statistic = (self.reading_statistic_interactor.
+                             get_statistic_dto_by_visitor_and_book(request.user, book_id))
+
+            except BookDoesNotExist as exception:
+                return self._create_response_for_exception(exception)
+
+            serialized_statistic = ReadingStatisticDTOSerializer(statistic)
+
+        else:
+            statistic = self.reading_statistic_interactor.get_all_statistics_dto_by_visitor(request.user)
+
+            serialized_statistic = ReadingStatisticDTOSerializer(statistic, many=True)
+
+        return Response({'statistic': serialized_statistic.data}, status=status.HTTP_200_OK)
+

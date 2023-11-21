@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
@@ -54,7 +56,7 @@ class Visitor(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=128)
     name = models.CharField(max_length=32)
     surname = models.CharField(max_length=32)
-    total_reading_time = models.DurationField(blank=True, null=True)
+    total_reading_time = models.DurationField(default=timedelta(seconds=0))
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -76,4 +78,4 @@ class Session(models.Model):
 class ReadingStatistic(models.Model):
     book = models.ForeignKey(to='books.Book', related_name='statistics', null=True, on_delete=models.SET_NULL)
     visitor = models.ForeignKey(to=Visitor, related_name='statistics', on_delete=models.CASCADE)
-    total_reading_time = models.DurationField()
+    total_reading_time = models.DurationField(default=timedelta(seconds=0))

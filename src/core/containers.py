@@ -74,7 +74,8 @@ class InteractorContainer(containers.DeclarativeContainer):
 
     book_interactor = providers.Factory(
         BookInteractor,
-        book_service=ServiceContainer.book_service
+        book_service=ServiceContainer.book_service,
+        converter_service=ServiceContainer.dto_converter_service
     )
 
     session_interactor = providers.Factory(

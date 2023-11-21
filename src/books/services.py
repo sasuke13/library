@@ -8,3 +8,6 @@ class BookService(BookRepositoryAndServiceInterface):
 
     def get_book_by_id(self, book_id: int) -> Book:
         return self.book_repository.get_book_by_id(book_id)
+
+    def get_all_books(self) -> Book:
+        return self.book_repository.get_all_books()

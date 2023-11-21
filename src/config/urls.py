@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 api_urls = [
-    path('visitor/', include('visitors.urls')),
+    path('visitors/', include('visitors.urls')),
+    path('books/', include('books.urls')),
 ]
 
 urlpatterns = [

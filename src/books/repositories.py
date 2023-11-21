@@ -13,3 +13,8 @@ class BookRepository(BookRepositoryAndServiceInterface):
             raise BookDoesNotExist(f'Book with id {book_id} does not exist!')
 
         return book
+
+    def get_all_books(self) -> Book:
+        books = Book.objects.all().prefetch_related('sessions', 'statistics')
+
+        return books

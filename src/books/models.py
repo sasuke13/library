@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -16,3 +16,4 @@ class Book(models.Model):
     short_about = models.CharField(max_length=128)
     about = models.CharField(max_length=512)
     last_used = models.DateTimeField(blank=True)
+    total_reading_time = models.DurationField(default=timedelta(seconds=0))

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import repeat
 from typing import Iterable
 
@@ -33,18 +33,19 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
 
     def add_total_reading_time_by_session(self, session: Session):
         visitor = session.visitor
+        book = session.book
+
         session_start = session.session_start
         session_end = session.session_end
 
         total_reading_time = session_end - session_start
 
-        if visitor.total_reading_time:
-            visitor.total_reading_time = visitor.total_reading_time + total_reading_time
+        visitor.total_reading_time = visitor.total_reading_time + total_reading_time
 
-        else:
-            visitor.total_reading_time = total_reading_time
+        book.total_reading_time = book.total_reading_time + total_reading_time
 
         visitor.save()
+        book.save()
 
 
 class SessionRepository(SessionRepositoryAndServiceInterface):
@@ -60,8 +61,7 @@ class SessionRepository(SessionRepositoryAndServiceInterface):
         return sessions
 
     def get_active_session_by_visitor(self, visitor: Visitor) -> Session:
-        active_session = (visitor.sessions.filter(is_active=True).all().first().
-                          prefetch_related('visitor', 'book').select_related('visitor', 'book'))
+        active_session = visitor.sessions.filter(is_active=True).all().first()
 
         if not active_session:
             raise SessionDoesNotExist()
@@ -88,7 +88,8 @@ class SessionRepository(SessionRepositoryAndServiceInterface):
         session.save()
 
         book.last_used = datetime.now()
-
+        print(datetime.now())
+        print(book.last_used)
         book.save()
 
         return 'Session has been successfully closed!'
@@ -154,15 +155,11 @@ class ReadingStatisticRepository(ReadingStatisticRepositoryAndServiceInterface):
                 select_related('book', 'visitor'))
 
     def get_statistic_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatistic:
-        statistic = (visitor.statistics.filter(book=book).first().
-                     prefetch_related('book', 'visitor').
-                     select_related('book', 'visitor'))
+        statistic = visitor.statistics.filter(book=book).first()
 
         return statistic
 
     def get_statistic_by_session(self, session: Session) -> ReadingStatistic:
-        statistic = (session.visitor.statistics.filter(book=session.book).first().
-                     prefetch_related('book', 'visitor').
-                     select_related('book', 'visitor'))
+        statistic = session.visitor.statistics.filter(book=session.book).first()
 
         return statistic
