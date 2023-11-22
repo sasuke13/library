@@ -1,5 +1,6 @@
 from django.conf import settings
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -36,6 +37,7 @@ def logout(request, message: str):
 
 
 class LogoutView(APIView, ApiBaseView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -47,6 +49,8 @@ class LogoutView(APIView, ApiBaseView):
 
 
 class CookieTokenObtainPairView(TokenObtainPairView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+
     def finalize_response(self, request, response, *args, **kwargs):
         if response.data.get("refresh"):
             response.set_cookie(
@@ -63,6 +67,8 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
 
 class CookieTokenRefreshView(TokenRefreshView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+
     def post(self, request, *args, **kwargs) -> Response:
         return super().post(request, *args, **kwargs)
 
@@ -70,6 +76,7 @@ class CookieTokenRefreshView(TokenRefreshView):
 
 
 class VisitorRegistrationApiView(APIView, ApiBaseView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     visitor_interactor = VisitorContainer.interactor()
 
     def post(self, request):
@@ -93,6 +100,7 @@ class VisitorRegistrationApiView(APIView, ApiBaseView):
 
 
 class SessionAPIView(APIView, ApiBaseView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes = [IsAuthenticated]
 
     session_interactor = SessionContainer.interactor()
@@ -123,6 +131,7 @@ class SessionAPIView(APIView, ApiBaseView):
 
 
 class CloseSessionAPIView(APIView, ApiBaseView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes = [IsAuthenticated]
 
     session_interactor = SessionContainer.interactor()
@@ -137,6 +146,7 @@ class CloseSessionAPIView(APIView, ApiBaseView):
 
 
 class StatisticsAPIView(APIView, ApiBaseView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     reading_statistic_interactor = ReadingStatisticContainer.interactor()
 
     def get(self, request, book_id: int = None):
@@ -156,6 +166,7 @@ class StatisticsAPIView(APIView, ApiBaseView):
 
 
 class VisitorStatisticsAPIView(APIView, ApiBaseView):
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes = [IsAuthenticated]
 
     reading_statistic_interactor = ReadingStatisticContainer.interactor()
@@ -177,4 +188,3 @@ class VisitorStatisticsAPIView(APIView, ApiBaseView):
             serialized_statistic = ReadingStatisticDTOSerializer(statistic, many=True)
 
         return Response({'statistic': serialized_statistic.data}, status=status.HTTP_200_OK)
-

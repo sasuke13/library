@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from itertools import repeat
 from typing import Iterable
 
@@ -69,8 +69,7 @@ class SessionRepository(SessionRepositoryAndServiceInterface):
         return active_session
 
     def get_active_session_by_book(self, book: Book) -> Session:
-        active_session = (book.sessions.filter(is_active=True).all().first().
-                          prefetch_related('visitor', 'book').select_related('visitor', 'book'))
+        active_session = book.sessions.filter(is_active=True).all().first()
 
         return active_session
 

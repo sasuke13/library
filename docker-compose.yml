@@ -1,18 +1,18 @@
 version: "3"
 
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "80:8000"
-    volumes:
-      - .:/backend
-    env_file:
-      - .env
-    depends_on:
-      - postgres
+#  backend:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "80:8000"
+#    volumes:
+#      - .:/backend
+#    env_file:
+#      - .env
+#    depends_on:
+#      - postgres
 
   postgres:
     image: postgres:14
