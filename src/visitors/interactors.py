@@ -2,8 +2,7 @@ from typing import Iterable
 
 from books.interfaces import BookRepositoryAndServiceInterface
 from books.models import Book
-from visitors.dto import ReadingStatisticDTO, VisitorRegistrationDTO, VisitorDTO, SessionDTO, \
-    SessionAndTotalReadingTimeDTO
+from visitors.dto import ReadingStatisticDTO, VisitorRegistrationDTO, VisitorDTO, SessionDTO
 from visitors.exceptions import SessionDoesNotExist, BookIsAlreadyTaken
 from visitors.interfaces import VisitorRepositoryAndServiceInterface, VisitorInteractorInterface, \
     SessionRepositoryAndServiceInterface, SessionInteractorInterface, DTOConverterInterface, \
