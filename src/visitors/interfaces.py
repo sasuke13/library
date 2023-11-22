@@ -11,6 +11,18 @@ from visitors.models import Visitor, Session, ReadingStatistic
 
 class VisitorRepositoryAndServiceInterface(ABC):
     @abstractmethod
+    def change_total_reading_time_for_the_last_week(self, visitor: Visitor):
+        pass
+
+    @abstractmethod
+    def change_total_reading_time_for_the_last_month(self, visitor: Visitor):
+        pass
+
+    @abstractmethod
+    def get_all_visitors(self) -> Visitor:
+        pass
+
+    @abstractmethod
     def does_visitor_exist_by_email(self, email: str) -> bool:
         pass
 
@@ -24,6 +36,18 @@ class VisitorRepositoryAndServiceInterface(ABC):
 
 
 class VisitorInteractorInterface(ABC):
+    @abstractmethod
+    def change_total_reading_time_for_the_last_week(self):
+        pass
+
+    @abstractmethod
+    def change_total_reading_time_for_the_last_month(self):
+        pass
+
+    @abstractmethod
+    def get_all_visitors(self) -> Visitor:
+        pass
+
     @abstractmethod
     def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
         pass

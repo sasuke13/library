@@ -13,13 +13,13 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -30,8 +30,7 @@ SECRET_KEY = 'django-insecure-rb&45@r_(opx0#0g5rd%^pwwr#%9qhhy3)2!_1(&1o*b77v6@n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -44,12 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # packages
-    "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
     'celery',
+    'django_celery_beat',
     'uuid',
     'debug_toolbar',
+    'kombu.transport.redis',
 
     # apps
     'books',
@@ -88,7 +89,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -98,11 +98,10 @@ DATABASES = {
         "NAME": os.environ.get("POSTGRES_DB", "JuniorPlatform"),
         "USER": os.environ.get("POSTGRES_USER", "postgres"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
-        "HOST": os.environ.get("POSTGRES_HOST1", "localhost"),
+        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
         "PORT": os.environ.get("POSTGRES_PORT", 5434),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -122,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -133,7 +131,6 @@ TIME_ZONE = 'Europe/Kiev'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -197,4 +194,44 @@ def show_toolbar(request):
 
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+}
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# REDIS CACHE
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = os.environ.get("REDIS_PORT", 6380)
+
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+CELERY_IMPORTS = ('core.tasks',)
+
+CELERY_BEAT_SCHEDULE = {
+    # 'get_statistic_for_the_last_month': {
+    #     'task': 'core.tasks.get_statistic_for_the_last_month',
+    #     'schedule': 5.0,
+    #     'options': {
+    #         'expires': 15.0,
+    #     },
+    # },
+    'get_statistic_for_the_last_week': {
+        'task': 'core.tasks.get_statistic_for_the_last_week',
+        'schedule': crontab(hour=0, minute=0),
+    },
+
+    'get_statistic_for_the_last_month': {
+        'task': 'core.tasks.get_statistic_for_the_last_month',
+        'schedule': crontab(hour=0, minute=0),
+    },
 }

@@ -14,6 +14,15 @@ class VisitorService(VisitorRepositoryAndServiceInterface):
     def __init__(self, visitor_repository: VisitorRepositoryAndServiceInterface):
         self.visitor_repository = visitor_repository
 
+    def change_total_reading_time_for_the_last_week(self, visitor: Visitor):
+        self.visitor_repository.change_total_reading_time_for_the_last_week(visitor)
+
+    def change_total_reading_time_for_the_last_month(self, visitor: Visitor):
+        self.visitor_repository.change_total_reading_time_for_the_last_month(visitor)
+
+    def get_all_visitors(self) -> Visitor:
+        return self.visitor_repository.get_all_visitors()
+
     def does_visitor_exist_by_email(self, email: str) -> bool:
         return self.visitor_repository.does_visitor_exist_by_email(email)
 
@@ -27,6 +36,9 @@ class VisitorService(VisitorRepositoryAndServiceInterface):
 class SessionService(SessionRepositoryAndServiceInterface):
     def __init__(self, session_repository: SessionRepositoryAndServiceInterface):
         self.session_repository = session_repository
+
+    def get_all_sessions_by_visitor_for_the_last_week(self, visitor: Visitor) -> Session:
+        return self.session_repository.get_all_sessions_by_visitor_for_the_last_week(visitor)
 
     def get_all_sessions(self) -> Session:
         return self.session_repository.get_all_sessions()

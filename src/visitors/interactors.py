@@ -8,7 +8,7 @@ from visitors.exceptions import SessionDoesNotExist, BookIsAlreadyTaken
 from visitors.interfaces import VisitorRepositoryAndServiceInterface, VisitorInteractorInterface, \
     SessionRepositoryAndServiceInterface, SessionInteractorInterface, DTOConverterInterface, \
     ReadingStatisticRepositoryAndServiceInterface, ReadingStatisticInteractorInterface
-from visitors.models import Visitor, ReadingStatistic
+from visitors.models import Visitor, ReadingStatistic, Session
 
 
 class VisitorInteractor(VisitorInteractorInterface):
@@ -16,11 +16,34 @@ class VisitorInteractor(VisitorInteractorInterface):
             self,
             visitor_service: VisitorRepositoryAndServiceInterface,
             book_service: BookRepositoryAndServiceInterface,
-            converter_service: DTOConverterInterface
+            converter_service: DTOConverterInterface,
+            session_service: SessionRepositoryAndServiceInterface,
     ):
         self.visitor_service = visitor_service
         self.book_service = book_service
         self.converter_service = converter_service
+        self.session_service = session_service
+
+    def change_total_reading_time_for_the_last_week(self):
+        visitors = self.visitor_service.get_all_visitors()
+        visitors_list = []
+
+        for visitor in visitors:
+            if visitor not in visitors_list:
+                self.visitor_service.change_total_reading_time_for_the_last_week(visitor)
+                visitors_list.append(visitor)
+
+    def change_total_reading_time_for_the_last_month(self):
+        visitors = self.visitor_service.get_all_visitors()
+        visitors_list = []
+
+        for visitor in visitors:
+            if visitor not in visitors_list:
+                self.visitor_service.change_total_reading_time_for_the_last_month(visitor)
+                visitors_list.append(visitor)
+
+    def get_all_visitors(self) -> Visitor:
+        return self.visitor_service.get_all_visitors()
 
     def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
         self.visitor_service.does_visitor_exist_by_email(visitor_registration_dto.email)
@@ -44,6 +67,9 @@ class SessionInteractor(SessionInteractorInterface):
         self.book_service = book_service
         self.reading_statistic_service = reading_statistic_service
         self.converter_service = converter_service
+
+    def get_all_sessions_by_visitor_for_the_last_week(self, visitor: Visitor) -> Session:
+        return self.session_service.get_all_sessions_by_visitor_for_the_last_week(visitor)
 
     def get_active_session_dto_by_visitor(self, visitor: Visitor) -> SessionDTO:
         session = self.session_service.get_active_session_by_visitor(visitor)

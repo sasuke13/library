@@ -1,18 +1,18 @@
 version: "3"
 
 services:
-#  backend:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    ports:
-#      - "80:8000"
-#    volumes:
-#      - .:/backend
-#    env_file:
-#      - .env
-#    depends_on:
-#      - postgres
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:8000"
+    volumes:
+      - .:/backend
+    env_file:
+      - .env
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:14
@@ -36,44 +36,77 @@ services:
     depends_on:
       - postgres
 
-#  redis:
-#    image: redis
-#    container_name: redis
-#    env_file:
-#      - .env
-#    restart: on-failure
-#    ports:
-#      - "6380:6379"
+  redis:
+    image: redis
+    container_name: redis
+    env_file:
+      - .env
+    restart: on-failure
+    ports:
+      - "6380:6379"
 
-#  redis-admin:
-#    image: rediscommander/redis-commander:latest
-#    container_name: redisadmin
-#    hostname: redisadmin
-#    ports:
-#      - "8092:8081"
-#    restart: always
-#    env_file:
-#      - .env
-#    depends_on:
-#      - redis
-#
-#  celery:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: celery
-#    command:
-#      - ./commands/run_celery.sh
-#    volumes:
-#      - ./src:/backend/src
-#      - ./commands:/backend/commands
-#    restart: always
-#    depends_on:
-#      - redis
-#      - backend
-#    env_file:
-#      - .env
+  redis-admin:
+    image: rediscommander/redis-commander:latest
+    container_name: redisadmin
+    hostname: redisadmin
+    ports:
+      - "8092:8081"
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - redis
 
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: celery
+    command:
+      - ./commands/run_celery.sh
+    volumes:
+      - ./src:/backend/src
+      - ./commands:/backend/commands
+    restart: on-failure
+
+    depends_on:
+      - redis
+      - backend
+    links:
+      - backend
+
+    env_file:
+      - .env
+
+  celery-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flower
+    ports:
+      - "5555:5555"
+    command:
+      - ./commands/run_flower.sh
+    restart: always
+    volumes:
+      - .:/backend
+    depends_on:
+      - celery
+    env_file:
+      - .env
+
+  celery-beat:
+    build: .
+    command:
+      - ./commands/run_celery_beat.sh
+    volumes:
+      - .:/backend
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - redis
+      - celery
 
 volumes:
   pg_data: { }

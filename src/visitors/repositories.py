@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import repeat
 from typing import Iterable
 
@@ -26,6 +26,63 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
 
         return False
 
+    def get_all_visitors(self) -> Visitor:
+        today_date = datetime.now()
+
+        visitors = (
+            Visitor.objects.all().
+            prefetch_related('sessions', 'statistics').
+            filter(
+                sessions__session_end__range=[today_date - timedelta(days=7), today_date],
+                sessions__is_active=False
+            )
+        )
+
+        return visitors
+
+    def change_total_reading_time_for_the_last_week(self, visitor: Visitor):
+        today_date = datetime.now()
+
+        sessions = (
+            visitor.sessions.all().
+            filter(
+                session_end__range=[today_date - timedelta(days=7), today_date], is_active=False
+            )
+        )
+
+        visitor.total_reading_time_for_the_last_week = timedelta(0)
+        for session in sessions:
+            session_start = session.session_start
+            session_end = session.session_end
+            total_reading_time = session_end - session_start
+
+            visitor.total_reading_time_for_the_last_week = (
+                visitor.total_reading_time_for_the_last_week + total_reading_time
+            )
+
+        visitor.save()
+
+    def change_total_reading_time_for_the_last_month(self, visitor: Visitor):
+        today_date = datetime.now()
+
+        sessions = (
+            visitor.sessions.all().
+            filter(
+                session_end__range=[today_date - timedelta(days=30), today_date], is_active=False
+            )
+        )
+        visitor.total_reading_time_for_the_last_week = timedelta(0)
+        for session in sessions:
+            session_start = session.session_start
+            session_end = session.session_end
+            total_reading_time = session_end - session_start
+
+            visitor.total_reading_time_for_the_last_month = (
+                visitor.total_reading_time_for_the_last_month + total_reading_time
+            )
+
+        visitor.save()
+
     def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> Visitor:
         registered_visitor = Visitor.objects.create_user(**visitor_registration_dto.__dict__)
 
@@ -40,8 +97,6 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
 
         total_reading_time = session_end - session_start
 
-        visitor.total_reading_time = visitor.total_reading_time + total_reading_time
-
         book.total_reading_time = book.total_reading_time + total_reading_time
 
         visitor.save()
@@ -52,6 +107,24 @@ class SessionRepository(SessionRepositoryAndServiceInterface):
     def get_all_sessions(self) -> Session:
         sessions = (Session.objects.all().order_by('visitor', 'book').
                     prefetch_related('visitor', 'book').select_related('visitor', 'book'))
+
+        return sessions
+
+    def get_all_sessions_by_visitor_for_the_last_week(self, visitor: Visitor) -> Session:
+        today_date = datetime.now()
+        sessions = (visitor.sessions.
+                    prefetch_related('visitor', 'book').
+                    select_related('visitor', 'book').
+                    filter(session_end__range=[today_date - timedelta(days=7), today_date], is_active=False))
+
+        return sessions
+
+    def get_all_sessions_by_visitor_for_the_last_month(self, visitor: Visitor) -> Session:
+        today_date = datetime.now()
+        sessions = (visitor.sessions.
+                    prefetch_related('visitor', 'book').
+                    select_related('visitor', 'book').
+                    filter(session_end__range=[today_date - timedelta(days=30), today_date], is_active=False))
 
         return sessions
 
@@ -87,8 +160,6 @@ class SessionRepository(SessionRepositoryAndServiceInterface):
         session.save()
 
         book.last_used = datetime.now()
-        print(datetime.now())
-        print(book.last_used)
         book.save()
 
         return 'Session has been successfully closed!'
@@ -108,15 +179,9 @@ class DTOConverterRepository(DTOConverterInterface):
 class ReadingStatisticRepository(ReadingStatisticRepositoryAndServiceInterface):
 
     def create_statistic_by_session(self, session: Session) -> ReadingStatistic:
-        session_start = session.session_start
-        session_end = session.session_end
-
-        total_reading_time = session_end - session_start
-
         statistic = ReadingStatistic.objects.create(
             book=session.book,
             visitor=session.visitor,
-            total_reading_time=total_reading_time
         )
 
         return statistic
@@ -126,7 +191,6 @@ class ReadingStatisticRepository(ReadingStatisticRepositoryAndServiceInterface):
             session: Session,
             statistic: ReadingStatistic
     ) -> ReadingStatistic:
-
         session_start = session.session_start
         session_end = session.session_end
 

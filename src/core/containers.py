@@ -69,7 +69,8 @@ class InteractorContainer(containers.DeclarativeContainer):
         VisitorInteractor,
         visitor_service=ServiceContainer.visitor_service,
         book_service=ServiceContainer.book_service,
-        converter_service=ServiceContainer.dto_converter_service
+        converter_service=ServiceContainer.dto_converter_service,
+        session_service=ServiceContainer.session_service
     )
 
     book_interactor = providers.Factory(
