@@ -4,7 +4,6 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
@@ -33,7 +32,7 @@ def logout(request, message: str):
         )
         return response
 
-    return Response("Refresh token not found", status=status.HTTP_400_BAD_REQUEST)
+    return Response({'error': 'Refresh token not found'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LogoutView(APIView, ApiBaseView):
@@ -42,10 +41,7 @@ class LogoutView(APIView, ApiBaseView):
 
     def post(self, request):
         message = "User was successfully logged out"
-        try:
-            return logout(request, message)
-        except TokenError as exception:
-            return self._create_response_for_exception(exception)
+        return logout(request, message)
 
 
 class CookieTokenObtainPairView(TokenObtainPairView):

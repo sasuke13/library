@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from books.exceptions import BookDoesNotExist
 from books.serializers import BookDetailedViewDTOSerializer, BookListViewDTOSerializer
 from core.base_api import ApiBaseView
 from core.containers import BookContainer
@@ -12,7 +13,11 @@ class BookAPIVew(APIView, ApiBaseView):
 
     def get(self, request, book_id: int = None):
         if book_id:
-            book = self.book_interactor.get_book_dto_by_id(book_id)
+            try:
+                book = self.book_interactor.get_book_dto_by_id(book_id)
+
+            except BookDoesNotExist as exception:
+                return self._create_response_not_found(exception)
 
             serialized_book = BookDetailedViewDTOSerializer(book)
 

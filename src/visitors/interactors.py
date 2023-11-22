@@ -1,5 +1,6 @@
 from typing import Iterable
 
+from books.exceptions import BookDoesNotExist
 from books.interfaces import BookRepositoryAndServiceInterface
 from books.models import Book
 from visitors.dto import ReadingStatisticDTO, VisitorRegistrationDTO, VisitorDTO, SessionDTO
@@ -121,6 +122,10 @@ class ReadingStatisticInteractor(ReadingStatisticInteractorInterface):
 
     def get_statistic_dto_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatisticDTO:
         statistic = self.reading_statistic_service.get_statistic_by_visitor_and_book(visitor, book)
+
+        if not statistic:
+            raise BookDoesNotExist()
+
         statistic_dto = self.converter_service.convert_to_dto(ReadingStatisticDTO, statistic)
 
         return statistic_dto

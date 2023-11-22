@@ -1,101 +1,13 @@
+import warnings
+from datetime import timedelta
+
+from core.fixtures_for_tests import (create_user, create_statistic, create_book, create_another_book,
+                                     get_access_for_base_user, open_session, close_session, create_session)
+
 import pytest
 from rest_framework.test import APIClient
 
-from books.models import Book
-from visitors.models import Visitor, Session
-
 client = APIClient()
-
-
-@pytest.fixture
-def create_user(db) -> Visitor:
-    visitor_dict = dict(
-        name='Name',
-        surname='Surname',
-        email='visitor@email.com',
-        password='password1295'
-    )
-
-    visitor = Visitor.objects.create_user(**visitor_dict)
-
-    return visitor
-
-
-@pytest.fixture
-def create_book(db) -> Book:
-    book_dict = dict(
-        title='title',
-        author='Author',
-        year_of_publication=1930,
-        short_about='short about',
-        about='a bit longer about'
-    )
-
-    book = Book.objects.create(**book_dict)
-
-    return book
-
-
-@pytest.fixture
-def create_another_book(db) -> Book:
-    book_dict = dict(
-        title='another book',
-        author='Author',
-        year_of_publication=1930,
-        short_about='short about',
-        about='a bit longer about'
-    )
-
-    book = Book.objects.create(**book_dict)
-
-    return book
-
-
-@pytest.fixture
-def create_session(db, create_book, create_user) -> Session:
-    session = Session.objects.create(visitor=create_user, book=create_book)
-
-    return session
-
-
-@pytest.fixture
-def get_access_for_base_user():
-    login_credentials = dict(
-        email='visitor@email.com',
-        password='password1295'
-    )
-
-    access = client.post('/api/v1/visitors/login/', login_credentials)
-
-    return access.data.get('access')
-
-
-@pytest.fixture
-def open_session(create_book, create_user, get_access_for_base_user):
-    book = create_book
-
-    access = get_access_for_base_user
-
-    headers = dict(
-        Authorization=f'Bearer {access}',
-    )
-
-    session = client.post(f'/api/v1/visitors/open_session/{book.pk}/', headers=headers)
-
-    return session.data
-
-
-@pytest.fixture
-def close_session(create_user, get_access_for_base_user):
-    access = get_access_for_base_user
-
-    headers = dict(
-        Authorization=f'Bearer {access}',
-    )
-
-    message = client.post('/api/v1/visitors/current_session/close/', headers=headers)
-
-    return message.data
 
 
 @pytest.mark.django_db
@@ -123,21 +35,11 @@ def test_registration():
     assert data == expected
 
 
-@pytest.mark.django_db
-def test_login():
-    payload = dict(
-        name='Name',
-        surname='Surname',
-        email='email@email.com',
-        password='password1295'
-    )
-
+def test_login(create_user):
     login_credentials = dict(
-        email='email@email.com',
+        email='visitor@email.com',
         password='password1295'
     )
-
-    client.post('/api/v1/visitors/registration/', payload)
 
     response = client.post('/api/v1/visitors/login/', login_credentials)
 
@@ -147,34 +49,40 @@ def test_login():
     assert data.get('access')
 
 
-@pytest.mark.django_db
-def test_logout():
-    payload = dict(
-        name='Name',
-        surname='Surname',
-        email='email@email.com',
-        password='password1295'
-    )
-
-    login_credentials = dict(
-        email='email@email.com',
-        password='password1295'
-    )
+def test_logout(create_user, get_access_for_base_user):
+    access = get_access_for_base_user
 
     expected = dict(
         message="User was successfully logged out"
     )
 
-    client.post('/api/v1/visitors/registration/', payload)
-
-    logged_user = client.post('/api/v1/visitors/login/', login_credentials)
-
     headers = dict(
-        Authorization=f'Bearer {logged_user.data.get("access")}',
+        Authorization=f'Bearer {access}',
     )
 
     response = client.post('/api/v1/visitors/logout/', headers=headers)
+    warnings.warn(UserWarning(response.data))
+    data = response.data
 
+    assert data == expected
+    assert not client.cookies.get('refresh_token').value
+
+
+def test_logout_token_error(create_user, get_access_for_base_user):
+    access = get_access_for_base_user
+
+    expected = dict(
+        error='Refresh token not found'
+    )
+
+    headers = dict(
+        Authorization=f'Bearer {access}',
+    )
+
+    client.post('/api/v1/visitors/logout/', headers=headers)
+    response = client.post('/api/v1/visitors/logout/', headers=headers)
+
+    warnings.warn(UserWarning(response.data))
     data = response.data
 
     assert data == expected
@@ -321,3 +229,94 @@ def test_close_session_which_does_not_exist(close_session):
     expected = {'error': 'You have no active sessions yet'}
 
     assert close_session == expected
+
+
+def test_statistic_by_user(create_session, close_session, get_access_for_base_user):
+    access = get_access_for_base_user
+
+    headers = dict(
+        Authorization=f'Bearer {access}',
+    )
+
+    statistic = client.get('/api/v1/visitors/statistic/', headers=headers)
+
+    data = dict(statistic.data['statistic'][0])
+
+    unexpected_time = timedelta(0)
+
+    time = data['total_reading_time'].split(':')
+
+    assert statistic.status_code == 200
+    assert timedelta(hours=float(time[0]), minutes=float(time[1]), seconds=float(time[2])) > unexpected_time
+
+
+def test_statistic_by_user_and_book(create_session, close_session, create_book, get_access_for_base_user):
+    access = get_access_for_base_user
+
+    headers = dict(
+        Authorization=f'Bearer {access}',
+    )
+
+    statistic = client.get(f'/api/v1/visitors/books/statistic/{create_book.pk}/', headers=headers)
+
+    data = statistic.data['statistic']
+
+    book_data = dict(data['book'])
+
+    unexpected_time = timedelta(0)
+
+    time = data['total_reading_time'].split(':')
+
+    assert statistic.status_code == 200
+    assert book_data['id'] == create_book.id
+    assert timedelta(hours=float(time[0]), minutes=float(time[1]), seconds=float(time[2])) > unexpected_time
+
+
+def test_statistic_by_user_and_book_which_does_not_exist(
+        create_session,
+        close_session,
+        get_access_for_base_user,
+):
+    access = get_access_for_base_user
+
+    headers = dict(
+        Authorization=f'Bearer {access}',
+    )
+
+    statistic = client.get('/api/v1/visitors/books/statistic/999999/', headers=headers)
+
+    expected = {'error': 'Book does not exist'}
+
+    assert statistic.status_code == 400
+    assert expected == statistic.data
+
+
+def test_all_statistic_by_book(create_book, open_session, close_session, create_statistic):
+    statistic = client.get(f'/api/v1/visitors/statistic/books/{create_book.pk}/')
+
+    data = statistic.data['statistic']
+
+    assert statistic.status_code == 200
+    assert len(data) == 2
+
+
+@pytest.mark.django_db
+def test_all_statistic_by_book_which_does_not_exist():
+
+    statistic = client.get('/api/v1/visitors/statistic/books/999999/')
+
+    expected = {'error': 'Book with id 999999 does not exist!'}
+
+    assert statistic.status_code == 400
+    assert expected == statistic.data
+
+
+@pytest.mark.django_db
+def test_all_statistic_by_book_which_does_not_exist(open_session, close_session, create_statistic):
+
+    statistic = client.get('/api/v1/visitors/global_statistic/')
+
+    data = statistic.data['statistic']
+
+    assert statistic.status_code == 200
+    assert len(data) == 2

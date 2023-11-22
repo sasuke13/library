@@ -21,4 +21,4 @@ class ApiBaseView:
         return Response({"error": str(''.join(exception.args[0]))}, status=status.HTTP_400_BAD_REQUEST)
 
     def _create_response_not_found(self, exception):
-        return Response({"error": str(exception)}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": str(''.join(exception.args[0]))}, status=status.HTTP_404_NOT_FOUND)
