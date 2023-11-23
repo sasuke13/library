@@ -18,14 +18,14 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
 
         return False
 
-    def get_all_visitors(self) -> Visitor:
+    def get_all_visitors_by_range_of_session_end(self, days: int) -> Visitor:
         today_date = datetime.now()
 
         visitors = (
             Visitor.objects.all().
             prefetch_related('sessions', 'statistics').
             filter(
-                sessions__session_end__range=[today_date - timedelta(days=7), today_date],
+                sessions__session_end__range=[today_date - timedelta(days=days), today_date],
                 sessions__is_active=False
             )
         )
@@ -43,6 +43,7 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
         )
 
         visitor.total_reading_time_for_the_last_week = timedelta(0)
+
         for session in sessions:
             session_start = session.session_start
             session_end = session.session_end
@@ -63,7 +64,8 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
                 session_end__range=[today_date - timedelta(days=30), today_date], is_active=False
             )
         )
-        visitor.total_reading_time_for_the_last_week = timedelta(0)
+        visitor.total_reading_time_for_the_last_month = timedelta(0)
+
         for session in sessions:
             session_start = session.session_start
             session_end = session.session_end

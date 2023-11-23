@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 
@@ -51,3 +51,19 @@ class SessionRepository(SessionRepositoryAndServiceInterface):
         book.save()
 
         return 'Session has been successfully closed!'
+
+    # def get_all_visitors(self, days: int) -> Visitor:
+    #     today_date = datetime.now()
+    #
+    #     sessions = (
+    #         Session.objects.all().
+    #         prefetch_related('visitor', 'book').
+    #         select_related('visitor', 'book').
+    #         filter(
+    #             session_end__range=[today_date - timedelta(days=7), today_date],
+    #             is_active=False
+    #         )
+    #     )
+    #
+    #     visitors = sessions.
+    #     return sessions

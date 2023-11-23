@@ -13,8 +13,8 @@ class VisitorService(VisitorRepositoryAndServiceInterface):
     def change_total_reading_time_for_the_last_month(self, visitor: Visitor):
         self.visitor_repository.change_total_reading_time_for_the_last_month(visitor)
 
-    def get_all_visitors(self) -> Visitor:
-        return self.visitor_repository.get_all_visitors()
+    def get_all_visitors_by_range_of_session_end(self, days: int) -> Visitor:
+        return self.visitor_repository.get_all_visitors_by_range_of_session_end(days)
 
     def does_visitor_exist_by_email(self, email: str) -> bool:
         return self.visitor_repository.does_visitor_exist_by_email(email)

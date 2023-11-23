@@ -33,7 +33,7 @@ class VisitorRepositoryAndServiceInterface(ABC):
         pass
 
     @abstractmethod
-    def get_all_visitors(self) -> Visitor:
+    def get_all_visitors_by_range_of_session_end(self, days: int) -> Visitor:
         pass
 
     @abstractmethod

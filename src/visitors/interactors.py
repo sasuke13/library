@@ -16,7 +16,7 @@ class VisitorInteractor(VisitorInteractorInterface):
         self.session_service = session_service
 
     def change_total_reading_time_for_the_last_week(self):
-        visitors = self.visitor_service.get_all_visitors()
+        visitors = self.visitor_service.get_all_visitors_by_range_of_session_end(7)
         visitors_list = []
 
         for visitor in visitors:
@@ -25,7 +25,7 @@ class VisitorInteractor(VisitorInteractorInterface):
                 visitors_list.append(visitor)
 
     def change_total_reading_time_for_the_last_month(self):
-        visitors = self.visitor_service.get_all_visitors()
+        visitors = self.visitor_service.get_all_visitors_by_range_of_session_end(30)
         visitors_list = []
 
         for visitor in visitors:
