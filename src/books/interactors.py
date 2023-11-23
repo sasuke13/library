@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from books.dto import BookListViewDTO, BookDTO
+from books.dto import BookListViewDTO, BookDTO, CreateBookDTO
 from books.interfaces import BookRepositoryAndServiceInterface, BookInteractorInterface
 from core.interfaces import DTOConverterInterface
 
@@ -13,6 +13,13 @@ class BookInteractor(BookInteractorInterface):
     ):
         self.book_service = book_service
         self.converter_service = converter_service
+
+    def create_book(self, book_dto: CreateBookDTO) -> BookDTO:
+        book = self.book_service.create_book(book_dto)
+
+        book_dto = self.converter_service.convert_to_dto(BookDTO, book)
+
+        return book_dto
 
     def get_book_dto_by_id(self, book_id: int) -> BookDTO:
         book = self.book_service.get_book_by_id(book_id)

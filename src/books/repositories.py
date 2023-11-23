@@ -1,5 +1,6 @@
 from annoying.functions import get_object_or_None
 
+from books.dto import CreateBookDTO
 from books.exceptions import BookDoesNotExist
 from books.interfaces import BookRepositoryAndServiceInterface
 from books.models import Book
@@ -7,6 +8,11 @@ from reading_sessions.models import Session
 
 
 class BookRepository(BookRepositoryAndServiceInterface):
+    def create_book(self, book_dto: CreateBookDTO) -> Book:
+        book = Book.objects.create(**book_dto.__dict__)
+
+        return book
+
     def get_book_by_id(self, book_id: int) -> Book:
         book = get_object_or_None(Book, pk=book_id)
 

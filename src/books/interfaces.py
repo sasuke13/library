@@ -1,15 +1,21 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
 
-from books.dto import BookDTO, BookListViewDTO
+from books.dto import BookDTO, BookListViewDTO, CreateBookDTO
 from books.models import Book
 from reading_sessions.models import Session
 
 
 class BookRepositoryAndServiceInterface(ABC):
-    # @abstractmethod
-    # def create_book(self, a):
-    #     ...
+    @abstractmethod
+    def create_book(self, book_dto: CreateBookDTO) -> Book:
+        """
+        Creates Book instance and returns it
+        :param book_dto:
+        :return Book instance:
+        """
+        pass
+
     @abstractmethod
     def get_book_by_id(self, book_id: int) -> Book:
         """
@@ -39,6 +45,15 @@ class BookRepositoryAndServiceInterface(ABC):
 
 
 class BookInteractorInterface(ABC):
+    @abstractmethod
+    def create_book(self, book_dto: CreateBookDTO) -> BookDTO:
+        """
+        Creates Book instance and converts it into BookDTO instance
+        :param book_dto:
+        :return BookDTO instance:
+        """
+        pass
+
     @abstractmethod
     def get_book_dto_by_id(self, book_id: int) -> BookDTO:
         """
