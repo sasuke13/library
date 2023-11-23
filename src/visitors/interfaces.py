@@ -4,9 +4,9 @@ from typing import Iterable
 
 from django.db.models import Model
 
-from books.models import Book
-from visitors.dto import VisitorRegistrationDTO, VisitorDTO, SessionDTO
-from visitors.models import Visitor, Session
+from reading_sessions.models import Session
+from visitors.dto import VisitorRegistrationDTO, VisitorDTO
+from visitors.models import Visitor
 
 
 class VisitorRepositoryAndServiceInterface(ABC):
@@ -50,46 +50,6 @@ class VisitorInteractorInterface(ABC):
 
     @abstractmethod
     def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> VisitorDTO:
-        pass
-
-
-class SessionRepositoryAndServiceInterface(ABC):
-    @abstractmethod
-    def get_all_sessions(self) -> Session:
-        pass
-
-    @abstractmethod
-    def get_active_session_by_visitor(self, visitor: Visitor) -> Session:
-        pass
-
-    @abstractmethod
-    def get_active_session_by_book(self, book: Book) -> Session:
-        pass
-
-    @abstractmethod
-    def get_all_sessions_by_visitor(self, visitor: Visitor) -> Session:
-        pass
-
-    @abstractmethod
-    def open_session(self, visitor: Visitor, book: Book) -> Session:
-        pass
-
-    @abstractmethod
-    def close_session(self, session: Session) -> str:
-        pass
-
-
-class SessionInteractorInterface(ABC):
-    @abstractmethod
-    def open_session(self, visitor: Visitor, book_id: int) -> SessionDTO:
-        pass
-
-    @abstractmethod
-    def close_session(self, visitor: Visitor) -> str:
-        pass
-
-    @abstractmethod
-    def get_active_session_dto_by_visitor(self, visitor: Visitor) -> SessionDTO:
         pass
 
 

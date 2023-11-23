@@ -5,9 +5,10 @@ from typing import Iterable
 from django.db.models import Model
 
 from books.models import Book
+from reading_sessions.models import Session
 from reading_statistics.models import ReadingStatistic
 from visitors.dto import ReadingStatisticDTO
-from visitors.models import Visitor, Session
+from visitors.models import Visitor
 
 
 class ReadingStatisticRepositoryAndServiceInterface(ABC):

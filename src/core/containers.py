@@ -7,9 +7,12 @@ from books.services import BookService
 from reading_statistics.interactors import ReadingStatisticInteractor
 from reading_statistics.repositories import ReadingStatisticRepository
 from reading_statistics.services import ReadingStatisticService
-from visitors.interactors import VisitorInteractor, SessionInteractor
-from visitors.repositories import VisitorRepository, SessionRepository, DTOConverterRepository
-from visitors.services import VisitorService, SessionService, DTOConverterService
+from reading_sessions.interactors import SessionInteractor
+from reading_sessions.repositories import SessionRepository
+from reading_sessions.services import SessionService
+from visitors.interactors import VisitorInteractor
+from visitors.repositories import VisitorRepository, DTOConverterRepository
+from visitors.services import VisitorService, DTOConverterService
 
 
 class ToDTOContainer(containers.DeclarativeContainer):

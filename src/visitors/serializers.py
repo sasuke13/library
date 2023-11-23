@@ -2,8 +2,6 @@ from rest_framework import serializers
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
-from books.serializers import BookDetailedViewDTOSerializer
-
 
 class CookieTokenRefreshSerializer(TokenRefreshSerializer):
     refresh = None
@@ -29,4 +27,3 @@ class VisitorDTOSerializer(serializers.Serializer):
     surname = serializers.CharField(max_length=32)
     total_reading_time_for_the_last_week = serializers.DurationField()
     total_reading_time_for_the_last_month = serializers.DurationField()
-

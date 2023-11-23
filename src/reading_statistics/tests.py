@@ -1,4 +1,3 @@
-import warnings
 from datetime import timedelta
 
 from core.fixtures_for_tests import (create_statistic, create_book, get_access_for_base_user,

@@ -1,12 +1,12 @@
-import warnings
 from datetime import datetime
 
 from rest_framework.test import APIClient
 import pytest
 
 from books.models import Book
+from reading_sessions.models import Session
 from reading_statistics.models import ReadingStatistic
-from visitors.models import Visitor, Session
+from visitors.models import Visitor
 
 client = APIClient()
 
@@ -95,7 +95,7 @@ def open_session(create_book, create_user, get_access_for_base_user):
         Authorization=f'Bearer {access}',
     )
 
-    session = client.post(f'/api/v1/visitors/open_session/{book.pk}/', headers=headers)
+    session = client.post(f'/api/v1/sessions/open_session/{book.pk}/', headers=headers)
 
     return session.data
 
@@ -108,5 +108,5 @@ def close_session(create_user, get_access_for_base_user):
         Authorization=f'Bearer {access}',
     )
 
-    message = client.post('/api/v1/visitors/current_session/close/', headers=headers)
+    message = client.post('/api/v1/sessions/current_session/close/', headers=headers)
     return message.data

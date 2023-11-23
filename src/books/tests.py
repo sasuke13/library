@@ -29,6 +29,6 @@ def test_get_book_which_does_not_exist():
     response = client.get('/api/v1/books/999999/')
 
     expected = {'error': 'Book with id 999999 does not exist!'}
-    warnings.warn(UserWarning(response.data))
+
     assert response.status_code == 404
     assert expected == response.data

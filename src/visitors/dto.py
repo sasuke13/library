@@ -22,22 +22,7 @@ class VisitorDTO:
 
 
 @dataclass(frozen=True)
-class SessionDTO:
-    book: BookDTO
-    visitor: VisitorDTO
-    session_start: datetime
-    session_end: datetime
-    is_active: bool
-
-
-@dataclass(frozen=True)
 class ReadingStatisticDTO:
     book: BookDTO
     visitor: VisitorDTO
     total_reading_time: datetime.time
-
-
-@dataclass(frozen=True)
-class SessionAndTotalReadingTimeDTO:
-    session: SessionDTO
-    statistic: ReadingStatisticDTO

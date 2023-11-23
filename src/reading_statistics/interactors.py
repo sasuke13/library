@@ -1,12 +1,11 @@
 from typing import Iterable
 
-from books.exceptions import BookDoesNotExist
 from books.interfaces import BookRepositoryAndServiceInterface
-from books.models import Book
-from reading_statistics.interfaces import ReadingStatisticInteractorInterface, \
-    ReadingStatisticRepositoryAndServiceInterface
+from reading_sessions.interfaces import SessionRepositoryAndServiceInterface
+from reading_statistics.interfaces import (ReadingStatisticInteractorInterface,
+                                           ReadingStatisticRepositoryAndServiceInterface)
 from visitors.dto import ReadingStatisticDTO
-from visitors.interfaces import SessionRepositoryAndServiceInterface, DTOConverterInterface
+from visitors.interfaces import DTOConverterInterface
 from visitors.models import Visitor
 
 

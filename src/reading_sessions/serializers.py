@@ -4,7 +4,9 @@ from books.serializers import BookDetailedViewDTOSerializer
 from visitors.serializers import VisitorDTOSerializer
 
 
-class ReadingStatisticDTOSerializer(serializers.Serializer):
+class SessionDTOSerializer(serializers.Serializer):
     book = BookDetailedViewDTOSerializer()
     visitor = VisitorDTOSerializer()
-    total_reading_time = serializers.DurationField()
+    session_start = serializers.DateTimeField()
+    session_end = serializers.DateTimeField()
+    is_active = serializers.BooleanField()

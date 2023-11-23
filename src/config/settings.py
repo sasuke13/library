@@ -46,17 +46,18 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
-    # 'celery',
-    # 'django_celery_beat',
+    'celery',
+    'django_celery_beat',
     'uuid',
     'debug_toolbar',
-    # 'kombu.transport.redis',
+    'kombu.transport.redis',
 
     # apps
     'books',
     'visitors',
     'core',
     'reading_statistics',
+    'reading_sessions'
 ]
 
 MIDDLEWARE = [
@@ -197,35 +198,35 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': show_toolbar,
 }
 
-# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # REDIS CACHE
 
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://127.0.0.1:6379/1",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         },
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
 
-# REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
-# REDIS_PORT = os.environ.get("REDIS_PORT", 6380)
-#
-# CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
-# CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}"
-# CELERY_IMPORTS = ('core.tasks',)
-#
-# CELERY_BEAT_SCHEDULE = {
-#     'get_statistic_for_the_last_week': {
-#         'task': 'core.tasks.get_statistic_for_the_last_week',
-#         'schedule': crontab(hour=0, minute=0),
-#     },
-#
-#     'get_statistic_for_the_last_month': {
-#         'task': 'core.tasks.get_statistic_for_the_last_month',
-#         'schedule': crontab(hour=0, minute=0),
-#     },
-# }
+REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
+REDIS_PORT = os.environ.get("REDIS_PORT", 6380)
+
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+CELERY_IMPORTS = ('core.tasks',)
+
+CELERY_BEAT_SCHEDULE = {
+    'get_statistic_for_the_last_week': {
+        'task': 'core.tasks.get_statistic_for_the_last_week',
+        'schedule': crontab(hour='0', minute='0'),
+    },
+
+    'get_statistic_for_the_last_month': {
+        'task': 'core.tasks.get_statistic_for_the_last_month',
+        'schedule': crontab(hour='0', minute='0'),
+    },
+}

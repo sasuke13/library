@@ -1,8 +1,9 @@
 from books.models import Book
+from reading_sessions.models import Session
 from reading_statistics.exceptions import StatisticDoesNotExist
 from reading_statistics.interfaces import ReadingStatisticRepositoryAndServiceInterface
 from reading_statistics.models import ReadingStatistic
-from visitors.models import Visitor, Session
+from visitors.models import Visitor
 
 
 class ReadingStatisticRepository(ReadingStatisticRepositoryAndServiceInterface):
