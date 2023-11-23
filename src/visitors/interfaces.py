@@ -34,6 +34,12 @@ class VisitorRepositoryAndServiceInterface(ABC):
 
     @abstractmethod
     def get_all_visitors_by_range_of_session_end(self, days: int) -> Visitor:
+        """
+        Makes query to get visitors by session_end in range between
+        the current date and the week before, and is_active=False
+        :param days:
+        :return Visitor instance:
+        """
         pass
 
     @abstractmethod
@@ -60,10 +66,24 @@ class VisitorRepositoryAndServiceInterface(ABC):
 class VisitorInteractorInterface(ABC):
     @abstractmethod
     def change_total_reading_time_for_the_last_week(self):
+        """
+        Gets visitors with inactive sessions in range of week.
+        Runs around the visitor query and
+        subtracts total_reading_time_for_the_last_week with
+        duration of all the inactive sessions in range of week.
+        :return nothing:
+        """
         pass
 
     @abstractmethod
     def change_total_reading_time_for_the_last_month(self):
+        """
+        Gets visitors with inactive sessions in range of month.
+        Runs around the visitor query and
+        subtracts total_reading_time_for_the_last_month with
+        duration of all the inactive sessions in range of month.
+        :return nothing:
+        """
         pass
 
     @abstractmethod
