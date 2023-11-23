@@ -1,8 +1,6 @@
 import datetime
 from dataclasses import dataclass
 
-from books.dto import BookDTO
-
 
 @dataclass(frozen=True)
 class VisitorRegistrationDTO:
@@ -19,10 +17,3 @@ class VisitorDTO:
     surname: str
     total_reading_time_for_the_last_week: datetime.time
     total_reading_time_for_the_last_month: datetime.time
-
-
-@dataclass(frozen=True)
-class ReadingStatisticDTO:
-    book: BookDTO
-    visitor: VisitorDTO
-    total_reading_time: datetime.time

@@ -1,13 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Iterable
-
-from django.db.models import Model
-
 from books.models import Book
 from reading_sessions.models import Session
+from reading_statistics.dto import ReadingStatisticDTO, ReadingStatisticWithBookTotalReadingTimeDTO
 from reading_statistics.models import ReadingStatistic
-from visitors.dto import ReadingStatisticDTO
 from visitors.models import Visitor
 
 
@@ -85,7 +81,7 @@ class ReadingStatisticRepositoryAndServiceInterface(ABC):
 
 class ReadingStatisticInteractorInterface(ABC):
     @abstractmethod
-    def get_all_statistics_dto(self) -> Iterable[ReadingStatisticDTO]:
+    def get_all_statistics_dto(self) -> Iterable[ReadingStatisticWithBookTotalReadingTimeDTO]:
         """
         Gets all statistics and converts them into ReadingStatisticDTO instances.
         :return Many ReadingStatisticDTO instances:
@@ -102,7 +98,7 @@ class ReadingStatisticInteractorInterface(ABC):
         pass
 
     @abstractmethod
-    def get_all_statistics_dto_by_book(self, book_id: int) -> ReadingStatistic:
+    def get_all_statistics_dto_by_book(self, book_id: int) -> Iterable[ReadingStatisticWithBookTotalReadingTimeDTO]:
         """
         Gets all book's statistics and converts them into ReadingStatisticDTO instances.
         :param book_id:

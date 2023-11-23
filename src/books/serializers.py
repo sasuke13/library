@@ -19,7 +19,7 @@ class BookListViewDTOSerializer(serializers.Serializer):
     short_about = serializers.CharField(max_length=128)
 
 
-class BookWithTotalReadingTimeDTOSerializer:
+class BookWithTotalReadingTimeDTOSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     total_reading_time = serializers.DurationField()

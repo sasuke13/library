@@ -1,10 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Iterable
 
-from django.db.models import Model
-
-from reading_sessions.models import Session
 from visitors.dto import VisitorRegistrationDTO, VisitorDTO
 from visitors.models import Visitor
 

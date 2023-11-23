@@ -2,11 +2,11 @@ from typing import Iterable
 
 from books.interfaces import BookRepositoryAndServiceInterface
 from core.interfaces import DTOConverterInterface
+from reading_statistics.dto import ReadingStatisticDTO, ReadingStatisticWithBookTotalReadingTimeDTO
 from reading_statistics.interfaces import (
     ReadingStatisticInteractorInterface,
     ReadingStatisticRepositoryAndServiceInterface
 )
-from visitors.dto import ReadingStatisticDTO
 from visitors.models import Visitor
 
 
@@ -21,9 +21,12 @@ class ReadingStatisticInteractor(ReadingStatisticInteractorInterface):
         self.converter_service = converter_service
         self.book_service = book_service
 
-    def get_all_statistics_dto(self) -> Iterable[ReadingStatisticDTO]:
+    def get_all_statistics_dto(self) -> Iterable[ReadingStatisticWithBookTotalReadingTimeDTO]:
         statistics = self.reading_statistic_service.get_all_statistics()
-        statistics_dto = self.converter_service.convert_many_to_dto(ReadingStatisticDTO, statistics)
+        statistics_dto = self.converter_service.convert_many_to_dto(
+            ReadingStatisticWithBookTotalReadingTimeDTO,
+            statistics
+        )
 
         return statistics_dto
 
@@ -33,10 +36,13 @@ class ReadingStatisticInteractor(ReadingStatisticInteractorInterface):
 
         return statistics_dto
 
-    def get_all_statistics_dto_by_book(self, book_id: int) -> Iterable[ReadingStatisticDTO]:
+    def get_all_statistics_dto_by_book(self, book_id: int) -> Iterable[ReadingStatisticWithBookTotalReadingTimeDTO]:
         book = self.book_service.get_book_by_id(book_id)
         statistic = self.reading_statistic_service.get_all_statistics_by_book(book)
-        statistic_dto = self.converter_service.convert_many_to_dto(ReadingStatisticDTO, statistic)
+        statistic_dto = self.converter_service.convert_many_to_dto(
+            ReadingStatisticWithBookTotalReadingTimeDTO,
+            statistic
+        )
 
         return statistic_dto
 

@@ -8,7 +8,10 @@ from books.exceptions import BookDoesNotExist
 from core.base_api import ApiBaseView
 from core.containers import ReadingStatisticContainer
 from reading_statistics.exceptions import StatisticDoesNotExist
-from reading_statistics.serializers import ReadingStatisticDTOSerializer
+from reading_statistics.serializers import (
+    ReadingStatisticDTOSerializer,
+    ReadingStatisticWithBookTotalReadingTimeDTOSerializer
+)
 
 
 class StatisticsAPIView(APIView, ApiBaseView):
@@ -26,12 +29,11 @@ class StatisticsAPIView(APIView, ApiBaseView):
                 statistic = self.reading_statistic_interactor.get_all_statistics_dto_by_book(book_id)
             except BookDoesNotExist as exception:
                 return self._create_response_not_found(exception)
-            serialized_statistic = ReadingStatisticDTOSerializer(statistic, many=True)
 
         else:
             statistic = self.reading_statistic_interactor.get_all_statistics_dto()
 
-            serialized_statistic = ReadingStatisticDTOSerializer(statistic, many=True)
+        serialized_statistic = ReadingStatisticWithBookTotalReadingTimeDTOSerializer(statistic, many=True)
 
         return Response({'statistic': serialized_statistic.data}, status=status.HTTP_200_OK)
 

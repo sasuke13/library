@@ -7,6 +7,9 @@ from reading_sessions.models import Session
 
 
 class BookRepositoryAndServiceInterface(ABC):
+    # @abstractmethod
+    # def create_book(self, a):
+    #     ...
     @abstractmethod
     def get_book_by_id(self, book_id: int) -> Book:
         """
