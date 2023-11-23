@@ -23,6 +23,8 @@ How to run:
       celery -A config beat -l info
     Flower:
       celery -A config flower --broker=redis://redis
+    Pytest:
+      pytest
     
   Via Docker:
     docker-compose up --build
