@@ -74,9 +74,3 @@ class Session(models.Model):
     session_start = models.DateTimeField(auto_now_add=True)
     session_end = models.DateTimeField(null=True)
     is_active = models.BooleanField(default=True)
-
-
-class ReadingStatistic(models.Model):
-    book = models.ForeignKey(to='books.Book', related_name='statistics', null=True, on_delete=models.SET_NULL)
-    visitor = models.ForeignKey(to=Visitor, related_name='statistics', on_delete=models.CASCADE)
-    total_reading_time = models.DurationField(default=timedelta(seconds=0))

@@ -30,21 +30,3 @@ class VisitorDTOSerializer(serializers.Serializer):
     total_reading_time_for_the_last_week = serializers.DurationField()
     total_reading_time_for_the_last_month = serializers.DurationField()
 
-
-class ReadingStatisticDTOSerializer(serializers.Serializer):
-    book = BookDetailedViewDTOSerializer()
-    visitor = VisitorDTOSerializer()
-    total_reading_time = serializers.DurationField()
-
-
-class SessionDTOSerializer(serializers.Serializer):
-    book = BookDetailedViewDTOSerializer()
-    visitor = VisitorDTOSerializer()
-    session_start = serializers.DateTimeField()
-    session_end = serializers.DateTimeField()
-    is_active = serializers.BooleanField()
-
-
-class SessionAndTotalReadingTimeDTOSerializer(serializers.Serializer):
-    session = SessionDTOSerializer()
-    statistic = ReadingStatisticDTOSerializer()

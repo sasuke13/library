@@ -6,14 +6,12 @@ from books.exceptions import BookDoesNotExist
 from books.serializers import BookDetailedViewDTOSerializer, BookListViewDTOSerializer
 from core.base_api import ApiBaseView
 from core.containers import BookContainer
-from core.tasks import debug_task
 
 
 class BookAPIVew(APIView, ApiBaseView):
     book_interactor = BookContainer.interactor()
 
     def get(self, request, book_id: int = None):
-        debug_task.delay()
         if book_id:
             try:
                 book = self.book_interactor.get_book_dto_by_id(book_id)

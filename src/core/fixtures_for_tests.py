@@ -1,10 +1,12 @@
+import warnings
 from datetime import datetime
 
 from rest_framework.test import APIClient
 import pytest
 
 from books.models import Book
-from visitors.models import Visitor, Session, ReadingStatistic
+from reading_statistics.models import ReadingStatistic
+from visitors.models import Visitor, Session
 
 client = APIClient()
 
@@ -107,5 +109,4 @@ def close_session(create_user, get_access_for_base_user):
     )
 
     message = client.post('/api/v1/visitors/current_session/close/', headers=headers)
-
     return message.data

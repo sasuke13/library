@@ -6,8 +6,8 @@ from django.db.models import Model
 from books.models import Book
 from visitors.dto import VisitorRegistrationDTO
 from visitors.interfaces import VisitorRepositoryAndServiceInterface, SessionRepositoryAndServiceInterface, \
-    DTOConverterInterface, ReadingStatisticRepositoryAndServiceInterface
-from visitors.models import Visitor, Session, ReadingStatistic
+    DTOConverterInterface
+from visitors.models import Visitor, Session
 
 
 class VisitorService(VisitorRepositoryAndServiceInterface):
@@ -36,9 +36,6 @@ class VisitorService(VisitorRepositoryAndServiceInterface):
 class SessionService(SessionRepositoryAndServiceInterface):
     def __init__(self, session_repository: SessionRepositoryAndServiceInterface):
         self.session_repository = session_repository
-
-    def get_all_sessions_by_visitor_for_the_last_week(self, visitor: Visitor) -> Session:
-        return self.session_repository.get_all_sessions_by_visitor_for_the_last_week(visitor)
 
     def get_all_sessions(self) -> Session:
         return self.session_repository.get_all_sessions()
@@ -69,29 +66,3 @@ class DTOConverterService(DTOConverterInterface):
     def convert_many_to_dto(self, dto_class: dataclass, query: Model) -> Iterable[dataclass]:
         return self.converter_repository.convert_many_to_dto(dto_class, query)
 
-
-class ReadingStatisticService(ReadingStatisticRepositoryAndServiceInterface):
-    def __init__(self, reading_statistic_repository: ReadingStatisticRepositoryAndServiceInterface):
-        self.reading_statistic_repository = reading_statistic_repository
-
-    def create_statistic_by_session(self, session: Session) -> ReadingStatistic:
-        return self.reading_statistic_repository.create_statistic_by_session(session)
-
-    def add_total_reading_time_to_existing_statistic(self, session: Session,
-                                                     statistic: ReadingStatistic) -> ReadingStatistic:
-        return self.reading_statistic_repository.add_total_reading_time_to_existing_statistic(session, statistic)
-
-    def get_all_statistics(self) -> ReadingStatistic:
-        return self.reading_statistic_repository.get_all_statistics()
-
-    def get_all_statistics_by_visitor(self, visitor: Visitor) -> ReadingStatistic:
-        return self.reading_statistic_repository.get_all_statistics_by_visitor(visitor)
-
-    def get_all_statistics_by_book(self, book: Book) -> ReadingStatistic:
-        return self.reading_statistic_repository.get_all_statistics_by_book(book)
-
-    def get_statistic_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatistic:
-        return self.reading_statistic_repository.get_statistic_by_visitor_and_book(visitor, book)
-
-    def get_statistic_by_session(self, session: Session) -> ReadingStatistic:
-        return self.reading_statistic_repository.get_statistic_by_session(session)

@@ -1,7 +1,6 @@
 import warnings
-from datetime import timedelta
 
-from core.fixtures_for_tests import (create_user, create_statistic, create_book, create_another_book,
+from core.fixtures_for_tests import (create_user, create_book, create_another_book,
                                      get_access_for_base_user, open_session, close_session, create_session)
 
 import pytest
@@ -24,7 +23,8 @@ def test_registration():
             'email': 'email@email.com',
             'name': 'Name',
             'surname': 'Surname',
-            'total_reading_time': '00:00:00'
+            'total_reading_time_for_the_last_week': '00:00:00',
+            'total_reading_time_for_the_last_month': '00:00:00'
         }
     }
 
@@ -61,7 +61,6 @@ def test_logout(create_user, get_access_for_base_user):
     )
 
     response = client.post('/api/v1/visitors/logout/', headers=headers)
-    warnings.warn(UserWarning(response.data))
     data = response.data
 
     assert data == expected
@@ -82,7 +81,6 @@ def test_logout_token_error(create_user, get_access_for_base_user):
     client.post('/api/v1/visitors/logout/', headers=headers)
     response = client.post('/api/v1/visitors/logout/', headers=headers)
 
-    warnings.warn(UserWarning(response.data))
     data = response.data
 
     assert data == expected
@@ -219,7 +217,9 @@ def test_get_session_session_does_not_exist(create_user, get_access_for_base_use
     assert expected == current_session.data
 
 
-def test_close_session(open_session, close_session):
+def test_close_session(create_session, close_session):
+    warnings.warn(UserWarning(create_session))
+    warnings.warn(UserWarning(close_session))
     expected = {'message': 'Session has been successfully closed!'}
 
     assert close_session == expected
@@ -229,94 +229,3 @@ def test_close_session_which_does_not_exist(close_session):
     expected = {'error': 'You have no active sessions yet'}
 
     assert close_session == expected
-
-
-def test_statistic_by_user(create_session, close_session, get_access_for_base_user):
-    access = get_access_for_base_user
-
-    headers = dict(
-        Authorization=f'Bearer {access}',
-    )
-
-    statistic = client.get('/api/v1/visitors/statistic/', headers=headers)
-
-    data = dict(statistic.data['statistic'][0])
-
-    unexpected_time = timedelta(0)
-
-    time = data['total_reading_time'].split(':')
-
-    assert statistic.status_code == 200
-    assert timedelta(hours=float(time[0]), minutes=float(time[1]), seconds=float(time[2])) > unexpected_time
-
-
-def test_statistic_by_user_and_book(create_session, close_session, create_book, get_access_for_base_user):
-    access = get_access_for_base_user
-
-    headers = dict(
-        Authorization=f'Bearer {access}',
-    )
-
-    statistic = client.get(f'/api/v1/visitors/books/statistic/{create_book.pk}/', headers=headers)
-
-    data = statistic.data['statistic']
-
-    book_data = dict(data['book'])
-
-    unexpected_time = timedelta(0)
-
-    time = data['total_reading_time'].split(':')
-
-    assert statistic.status_code == 200
-    assert book_data['id'] == create_book.id
-    assert timedelta(hours=float(time[0]), minutes=float(time[1]), seconds=float(time[2])) > unexpected_time
-
-
-def test_statistic_by_user_and_book_which_does_not_exist(
-        create_session,
-        close_session,
-        get_access_for_base_user,
-):
-    access = get_access_for_base_user
-
-    headers = dict(
-        Authorization=f'Bearer {access}',
-    )
-
-    statistic = client.get('/api/v1/visitors/books/statistic/999999/', headers=headers)
-
-    expected = {'error': 'Book does not exist'}
-
-    assert statistic.status_code == 400
-    assert expected == statistic.data
-
-
-def test_all_statistic_by_book(create_book, open_session, close_session, create_statistic):
-    statistic = client.get(f'/api/v1/visitors/statistic/books/{create_book.pk}/')
-
-    data = statistic.data['statistic']
-
-    assert statistic.status_code == 200
-    assert len(data) == 2
-
-
-@pytest.mark.django_db
-def test_all_statistic_by_book_which_does_not_exist():
-
-    statistic = client.get('/api/v1/visitors/statistic/books/999999/')
-
-    expected = {'error': 'Book with id 999999 does not exist!'}
-
-    assert statistic.status_code == 400
-    assert expected == statistic.data
-
-
-@pytest.mark.django_db
-def test_all_statistic_by_book_which_does_not_exist(open_session, close_session, create_statistic):
-
-    statistic = client.get('/api/v1/visitors/global_statistic/')
-
-    data = statistic.data['statistic']
-
-    assert statistic.status_code == 200
-    assert len(data) == 2

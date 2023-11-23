@@ -4,10 +4,12 @@ from dependency_injector import containers, providers
 from books.interactors import BookInteractor
 from books.repositories import BookRepository
 from books.services import BookService
-from visitors.interactors import VisitorInteractor, SessionInteractor, ReadingStatisticInteractor
-from visitors.repositories import VisitorRepository, SessionRepository, DTOConverterRepository, \
-    ReadingStatisticRepository
-from visitors.services import VisitorService, SessionService, DTOConverterService, ReadingStatisticService
+from reading_statistics.interactors import ReadingStatisticInteractor
+from reading_statistics.repositories import ReadingStatisticRepository
+from reading_statistics.services import ReadingStatisticService
+from visitors.interactors import VisitorInteractor, SessionInteractor
+from visitors.repositories import VisitorRepository, SessionRepository, DTOConverterRepository
+from visitors.services import VisitorService, SessionService, DTOConverterService
 
 
 class ToDTOContainer(containers.DeclarativeContainer):

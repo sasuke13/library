@@ -1,14 +1,10 @@
-from typing import Iterable
-
-from books.exceptions import BookDoesNotExist
 from books.interfaces import BookRepositoryAndServiceInterface
-from books.models import Book
-from visitors.dto import ReadingStatisticDTO, VisitorRegistrationDTO, VisitorDTO, SessionDTO
+from reading_statistics.interfaces import ReadingStatisticRepositoryAndServiceInterface
+from visitors.dto import VisitorRegistrationDTO, VisitorDTO, SessionDTO
 from visitors.exceptions import SessionDoesNotExist, BookIsAlreadyTaken
 from visitors.interfaces import VisitorRepositoryAndServiceInterface, VisitorInteractorInterface, \
-    SessionRepositoryAndServiceInterface, SessionInteractorInterface, DTOConverterInterface, \
-    ReadingStatisticRepositoryAndServiceInterface, ReadingStatisticInteractorInterface
-from visitors.models import Visitor, ReadingStatistic, Session
+    SessionRepositoryAndServiceInterface, SessionInteractorInterface, DTOConverterInterface
+from visitors.models import Visitor
 
 
 class VisitorInteractor(VisitorInteractorInterface):
@@ -68,9 +64,6 @@ class SessionInteractor(SessionInteractorInterface):
         self.reading_statistic_service = reading_statistic_service
         self.converter_service = converter_service
 
-    def get_all_sessions_by_visitor_for_the_last_week(self, visitor: Visitor) -> Session:
-        return self.session_service.get_all_sessions_by_visitor_for_the_last_week(visitor)
-
     def get_active_session_dto_by_visitor(self, visitor: Visitor) -> SessionDTO:
         session = self.session_service.get_active_session_by_visitor(visitor)
         session_dto = self.converter_service.convert_to_dto(SessionDTO, session)
@@ -105,53 +98,9 @@ class SessionInteractor(SessionInteractorInterface):
 
         self.visitor_service.add_total_reading_time_by_session(active_session)
 
-        if statistic:
-            self.reading_statistic_service.add_total_reading_time_to_existing_statistic(active_session, statistic)
+        if not statistic:
+            statistic = self.reading_statistic_service.create_statistic_by_session(session=active_session)
 
-        else:
-            self.reading_statistic_service.create_statistic_by_session(active_session)
+        self.reading_statistic_service.add_total_reading_time_to_existing_statistic(active_session, statistic)
 
         return message
-
-
-class ReadingStatisticInteractor(ReadingStatisticInteractorInterface):
-    def __init__(
-            self,
-            reading_statistic_service: ReadingStatisticRepositoryAndServiceInterface,
-            converter_service: DTOConverterInterface,
-            session_service: SessionRepositoryAndServiceInterface,
-            book_service: BookRepositoryAndServiceInterface
-    ):
-        self.reading_statistic_service = reading_statistic_service
-        self.converter_service = converter_service
-        self.session_service = session_service
-        self.book_service = book_service
-
-    def get_all_statistics_dto(self) -> Iterable[ReadingStatisticDTO]:
-        statistics = self.reading_statistic_service.get_all_statistics()
-        statistics_dto = self.converter_service.convert_many_to_dto(ReadingStatisticDTO, statistics)
-
-        return statistics_dto
-
-    def get_all_statistics_dto_by_visitor(self, visitor: Visitor) -> Iterable[ReadingStatistic]:
-        statistics = self.reading_statistic_service.get_all_statistics_by_visitor(visitor)
-        statistics_dto = self.converter_service.convert_many_to_dto(ReadingStatisticDTO, statistics)
-
-        return statistics_dto
-
-    def get_all_statistics_by_book(self, book_id: int) -> Iterable[ReadingStatisticDTO]:
-        book = self.book_service.get_book_by_id(book_id)
-        statistic = self.reading_statistic_service.get_all_statistics_by_book(book)
-        statistic_dto = self.converter_service.convert_many_to_dto(ReadingStatisticDTO, statistic)
-
-        return statistic_dto
-
-    def get_statistic_dto_by_visitor_and_book(self, visitor: Visitor, book: Book) -> ReadingStatisticDTO:
-        statistic = self.reading_statistic_service.get_statistic_by_visitor_and_book(visitor, book)
-
-        if not statistic:
-            raise BookDoesNotExist()
-
-        statistic_dto = self.converter_service.convert_to_dto(ReadingStatisticDTO, statistic)
-
-        return statistic_dto
