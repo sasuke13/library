@@ -120,13 +120,3 @@ class ReadingStatisticInteractorInterface(ABC):
         :return Many ReadingStatisticDTO instances:
         """
         pass
-
-
-class DTOConverterInterface(ABC):
-    @abstractmethod
-    def convert_to_dto(self, dto_class: dataclass, query: Model) -> dataclass:
-        pass
-
-    @abstractmethod
-    def convert_many_to_dto(self, dto_class: dataclass, query: Model) -> Iterable[dataclass]:
-        pass

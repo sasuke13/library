@@ -1,11 +1,12 @@
 from books.exceptions import BookIsAlreadyTaken
 from books.interfaces import BookRepositoryAndServiceInterface
+from core.interfaces import DTOConverterInterface
 from reading_statistics.interfaces import ReadingStatisticRepositoryAndServiceInterface
 from reading_sessions.dto import SessionDTO
 from reading_sessions.exceptions import SessionDoesNotExist
 from reading_sessions.interfaces import SessionRepositoryAndServiceInterface, SessionInteractorInterface
 
-from visitors.interfaces import VisitorRepositoryAndServiceInterface, DTOConverterInterface
+from visitors.interfaces import VisitorRepositoryAndServiceInterface
 from visitors.models import Visitor
 
 
@@ -41,7 +42,7 @@ class SessionInteractor(SessionInteractorInterface):
             active_session = self.session_service.get_active_session_by_visitor(visitor)
 
             self.session_service.close_session(active_session)
-            self.visitor_service.add_total_reading_time_by_session(active_session)
+            self.book_service.add_total_reading_time_by_session(active_session)
 
         except SessionDoesNotExist:
             ...
@@ -56,7 +57,7 @@ class SessionInteractor(SessionInteractorInterface):
 
         message = self.session_service.close_session(active_session)
 
-        self.visitor_service.add_total_reading_time_by_session(active_session)
+        self.book_service.add_total_reading_time_by_session(active_session)
 
         if not statistic:
             statistic = self.reading_statistic_service.create_statistic_by_session(session=active_session)

@@ -3,6 +3,7 @@ from typing import Iterable
 
 from books.dto import BookDTO, BookListViewDTO
 from books.models import Book
+from reading_sessions.models import Session
 
 
 class BookRepositoryAndServiceInterface(ABC):
@@ -21,6 +22,15 @@ class BookRepositoryAndServiceInterface(ABC):
         """
         Makes query to get all books.
         :return Book instance:
+        """
+        pass
+
+    @abstractmethod
+    def add_total_reading_time_by_session(self, session: Session):
+        """
+        Adds the duration of session in Book's total_reading_time field
+        :param session:
+        :return:
         """
         pass
 

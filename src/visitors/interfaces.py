@@ -56,15 +56,6 @@ class VisitorRepositoryAndServiceInterface(ABC):
         """
         pass
 
-    @abstractmethod
-    def add_total_reading_time_by_session(self, session: Session):
-        """
-        Adds the duration of session in Book's total_reading_time field
-        :param session:
-        :return:
-        """
-        pass
-
 
 class VisitorInteractorInterface(ABC):
     @abstractmethod
@@ -85,27 +76,5 @@ class VisitorInteractorInterface(ABC):
         Converts gotten Visitor instance into VisitorDTO
         :param visitor_registration_dto:
         :return packed Visitor instance's fields in VisitorDTO:
-        """
-        pass
-
-
-class DTOConverterInterface(ABC):
-    @abstractmethod
-    def convert_to_dto(self, dto_class: dataclass, query: Model) -> dataclass:
-        """
-        Converts 1 query into dto class.
-        :param dto_class:
-        :param query:
-        :return Converted query's fields into the dto_class:
-        """
-        pass
-
-    @abstractmethod
-    def convert_many_to_dto(self, dto_class: dataclass, query: Model) -> Iterable[dataclass]:
-        """
-        Converts query with many instances into dto class.
-        :param dto_class:
-        :param query:
-        :return Converted iterable query's fields into the dto_class:
         """
         pass

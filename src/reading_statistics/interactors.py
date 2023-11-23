@@ -1,10 +1,12 @@
 from typing import Iterable
 
 from books.interfaces import BookRepositoryAndServiceInterface
-from reading_statistics.interfaces import (ReadingStatisticInteractorInterface,
-                                           ReadingStatisticRepositoryAndServiceInterface)
+from core.interfaces import DTOConverterInterface
+from reading_statistics.interfaces import (
+    ReadingStatisticInteractorInterface,
+    ReadingStatisticRepositoryAndServiceInterface
+)
 from visitors.dto import ReadingStatisticDTO
-from visitors.interfaces import DTOConverterInterface
 from visitors.models import Visitor
 
 

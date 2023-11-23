@@ -1,5 +1,6 @@
 from books.interfaces import BookRepositoryAndServiceInterface
 from books.models import Book
+from reading_sessions.models import Session
 
 
 class BookService(BookRepositoryAndServiceInterface):
@@ -11,3 +12,6 @@ class BookService(BookRepositoryAndServiceInterface):
 
     def get_all_books(self) -> Book:
         return self.book_repository.get_all_books()
+
+    def add_total_reading_time_by_session(self, session: Session):
+        return self.book_repository.add_total_reading_time_by_session(session)

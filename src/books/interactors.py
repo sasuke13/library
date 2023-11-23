@@ -2,7 +2,7 @@ from typing import Iterable
 
 from books.dto import BookListViewDTO, BookDTO
 from books.interfaces import BookRepositoryAndServiceInterface, BookInteractorInterface
-from visitors.interfaces import DTOConverterInterface
+from core.interfaces import DTOConverterInterface
 
 
 class BookInteractor(BookInteractorInterface):

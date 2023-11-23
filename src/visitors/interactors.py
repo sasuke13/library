@@ -1,6 +1,7 @@
+from core.interfaces import DTOConverterInterface
 from reading_sessions.interfaces import SessionRepositoryAndServiceInterface
 from visitors.dto import VisitorRegistrationDTO, VisitorDTO
-from visitors.interfaces import VisitorRepositoryAndServiceInterface, VisitorInteractorInterface, DTOConverterInterface
+from visitors.interfaces import VisitorRepositoryAndServiceInterface, VisitorInteractorInterface
 
 
 class VisitorInteractor(VisitorInteractorInterface):

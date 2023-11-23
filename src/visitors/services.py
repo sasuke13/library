@@ -1,11 +1,5 @@
-from dataclasses import dataclass
-from typing import Iterable
-
-from django.db.models import Model
-
-from reading_sessions.models import Session
 from visitors.dto import VisitorRegistrationDTO
-from visitors.interfaces import VisitorRepositoryAndServiceInterface, DTOConverterInterface
+from visitors.interfaces import VisitorRepositoryAndServiceInterface
 from visitors.models import Visitor
 
 
@@ -27,17 +21,3 @@ class VisitorService(VisitorRepositoryAndServiceInterface):
 
     def registration(self, visitor_registration_dto: VisitorRegistrationDTO) -> Visitor:
         return self.visitor_repository.registration(visitor_registration_dto)
-
-    def add_total_reading_time_by_session(self, session: Session):
-        self.visitor_repository.add_total_reading_time_by_session(session)
-
-
-class DTOConverterService(DTOConverterInterface):
-    def __init__(self, converter_repository: DTOConverterInterface):
-        self.converter_repository = converter_repository
-
-    def convert_to_dto(self, dto_class: dataclass, query: Model) -> dataclass:
-        return self.converter_repository.convert_to_dto(dto_class, query)
-
-    def convert_many_to_dto(self, dto_class: dataclass, query: Model) -> Iterable[dataclass]:
-        return self.converter_repository.convert_many_to_dto(dto_class, query)
