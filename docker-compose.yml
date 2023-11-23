@@ -1,18 +1,18 @@
 version: "3"
 
 services:
-#  backend:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    ports:
-#      - "80:8000"
-#    volumes:
-#      - .:/backend
-#    env_file:
-#      - .env
-#    depends_on:
-#      - postgres
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:8000"
+    volumes:
+      - .:/backend
+    env_file:
+      - .env
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:14
@@ -57,56 +57,56 @@ services:
     depends_on:
       - redis
 
-#  celery:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: celery
-#    command:
-#      - ./commands/run_celery.sh
-#    volumes:
-#      - ./src:/backend/src
-#      - ./commands:/backend/commands
-#    restart: on-failure
-#
-#    depends_on:
-#      - redis
-#      - backend
-#    links:
-#      - backend
-#
-#    env_file:
-#      - .env
-#
-#  celery-admin:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: flower
-#    ports:
-#      - "5555:5555"
-#    command:
-#      - ./commands/run_flower.sh
-#    restart: always
-#    volumes:
-#      - .:/backend
-#    depends_on:
-#      - celery
-#    env_file:
-#      - .env
-#
-#  celery-beat:
-#    build: .
-#    command:
-#      - ./commands/run_celery_beat.sh
-#    volumes:
-#      - .:/backend
-#    env_file:
-#      - .env
-#    depends_on:
-#      - backend
-#      - redis
-#      - celery
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: celery
+    command:
+      - ./commands/run_celery.sh
+    volumes:
+      - ./src:/backend/src
+      - ./commands:/backend/commands
+    restart: on-failure
+
+    depends_on:
+      - redis
+      - backend
+    links:
+      - backend
+
+    env_file:
+      - .env
+
+  celery-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flower
+    ports:
+      - "5555:5555"
+    command:
+      - ./commands/run_flower.sh
+    restart: always
+    volumes:
+      - .:/backend
+    depends_on:
+      - celery
+    env_file:
+      - .env
+
+  celery-beat:
+    build: .
+    command:
+      - ./commands/run_celery_beat.sh
+    volumes:
+      - .:/backend
+    env_file:
+      - .env
+    depends_on:
+      - backend
+      - redis
+      - celery
 
 volumes:
   pg_data: { }

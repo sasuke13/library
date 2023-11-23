@@ -73,7 +73,6 @@ class InteractorContainer(containers.DeclarativeContainer):
     visitor_interactor = providers.Factory(
         VisitorInteractor,
         visitor_service=ServiceContainer.visitor_service,
-        book_service=ServiceContainer.book_service,
         converter_service=ServiceContainer.dto_converter_service,
         session_service=ServiceContainer.session_service
     )
@@ -97,7 +96,6 @@ class InteractorContainer(containers.DeclarativeContainer):
         ReadingStatisticInteractor,
         reading_statistic_service=ServiceContainer.reading_statistic_service,
         converter_service=ServiceContainer.dto_converter_service,
-        session_service=ServiceContainer.session_service,
         book_service=ServiceContainer.book_service,
     )
 

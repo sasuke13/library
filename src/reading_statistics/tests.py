@@ -64,7 +64,7 @@ def test_statistic_by_user_and_book_which_does_not_exist(
     statistic = client.get('/api/v1/reading_statistics/books/999999/', headers=headers)
     expected = {'error': 'Book with id 999999 does not exist!'}
 
-    assert statistic.status_code == 400
+    assert statistic.status_code == 404
     assert expected == statistic.data
 
 

@@ -9,6 +9,10 @@ from core.containers import BookContainer
 
 
 class BookAPIVew(APIView, ApiBaseView):
+    """
+        Accepts book id for Book detailed view.
+        If book id was not provided, returns list of books.
+    """
     book_interactor = BookContainer.interactor()
 
     def get(self, request, book_id: int = None):

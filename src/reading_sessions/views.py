@@ -12,6 +12,16 @@ from reading_sessions.serializers import SessionDTOSerializer
 
 
 class SessionAPIView(APIView, ApiBaseView):
+    """
+        GET:
+            Returns visitor's active session
+            or returns that visitor have no active session.
+
+        POST:
+            Accepts book id and opens session or returns
+            BookDoesNotExist(book with provided id does not exist),
+            BookIsAlreadyTaken(book was already taken and unavailable) errors messages
+    """
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes = [IsAuthenticated]
 
@@ -21,7 +31,7 @@ class SessionAPIView(APIView, ApiBaseView):
         try:
             session = self.session_interactor.get_active_session_dto_by_visitor(request.user)
         except SessionDoesNotExist as exception:
-            return self._create_response_for_exception(exception)
+            return self._create_response_not_found(exception)
 
         serialized_session = SessionDTOSerializer(session)
 
@@ -43,6 +53,10 @@ class SessionAPIView(APIView, ApiBaseView):
 
 
 class CloseSessionAPIView(APIView, ApiBaseView):
+    """
+        Closes visitor's active session or
+        raises SessionDoesNotExist(visitor have no active sessions) error
+    """
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes = [IsAuthenticated]
 
@@ -52,6 +66,6 @@ class CloseSessionAPIView(APIView, ApiBaseView):
         try:
             message = self.session_interactor.close_session(request.user)
         except SessionDoesNotExist as exception:
-            return self._create_response_for_exception(exception)
+            return self._create_response_not_found(exception)
 
         return Response({'message': message}, status=status.HTTP_200_OK)

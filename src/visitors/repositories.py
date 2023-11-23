@@ -87,7 +87,6 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
         return registered_visitor
 
     def add_total_reading_time_by_session(self, session: Session):
-        visitor = session.visitor
         book = session.book
 
         session_start = session.session_start
@@ -97,7 +96,6 @@ class VisitorRepository(VisitorRepositoryAndServiceInterface):
 
         book.total_reading_time = book.total_reading_time + total_reading_time
 
-        visitor.save()
         book.save()
 
 

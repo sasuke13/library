@@ -15,6 +15,13 @@ from visitors.serializers import CookieTokenRefreshSerializer, VisitorDTOSeriali
 
 
 def logout(request, message: str):
+
+    """
+        Logouts logged user and deletes refresh token from cookies.
+
+        Returns exception if refresh token was not given into the cookies.
+    """
+
     refresh_token = request.COOKIES.get("refresh_token")
     if refresh_token:
         token = RefreshToken(refresh_token)
@@ -34,6 +41,13 @@ def logout(request, message: str):
 
 
 class LogoutView(APIView, ApiBaseView):
+    """
+        Implements logic of logout func.
+
+        Gives message for the successful logout response.
+
+        User have to be logged in to use this endpoint.
+    """
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     permission_classes = (IsAuthenticated,)
 
@@ -43,6 +57,13 @@ class LogoutView(APIView, ApiBaseView):
 
 
 class CookieTokenObtainPairView(TokenObtainPairView):
+    """
+        Logins user giving the access token in response or
+        returns that user's credentials are wrong.
+
+        Saves refresh token into cookies.
+    """
+
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def finalize_response(self, request, response, *args, **kwargs):
@@ -61,6 +82,10 @@ class CookieTokenObtainPairView(TokenObtainPairView):
 
 
 class CookieTokenRefreshView(TokenRefreshView):
+    """
+        Refreshes the access token, taking the refresh token from cookies
+    """
+
     parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def post(self, request, *args, **kwargs) -> Response:
@@ -70,6 +95,13 @@ class CookieTokenRefreshView(TokenRefreshView):
 
 
 class VisitorRegistrationApiView(APIView, ApiBaseView):
+    """
+        Registers user into DB.
+
+        Returns created user or PasswordIsInvalid if password is not safe enough
+        whether VisitorAlreadyExists if the given email is already taken by another user.
+    """
+
     parser_classes = (MultiPartParser, FormParser, JSONParser)
     visitor_interactor = VisitorContainer.interactor()
 

@@ -1,7 +1,6 @@
 from typing import Iterable
 
 from books.interfaces import BookRepositoryAndServiceInterface
-from reading_sessions.interfaces import SessionRepositoryAndServiceInterface
 from reading_statistics.interfaces import (ReadingStatisticInteractorInterface,
                                            ReadingStatisticRepositoryAndServiceInterface)
 from visitors.dto import ReadingStatisticDTO
@@ -14,12 +13,10 @@ class ReadingStatisticInteractor(ReadingStatisticInteractorInterface):
             self,
             reading_statistic_service: ReadingStatisticRepositoryAndServiceInterface,
             converter_service: DTOConverterInterface,
-            session_service: SessionRepositoryAndServiceInterface,
             book_service: BookRepositoryAndServiceInterface
     ):
         self.reading_statistic_service = reading_statistic_service
         self.converter_service = converter_service
-        self.session_service = session_service
         self.book_service = book_service
 
     def get_all_statistics_dto(self) -> Iterable[ReadingStatisticDTO]:

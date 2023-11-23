@@ -6,3 +6,4 @@ per-file-ignores =
     src/visitors/tests.py: F811, F401
     src/books/tests.py: F811, F401
     src/reading_statistics/tests.py: F811, F401
+    src/reading_sessions/tests.py: F811, F401
